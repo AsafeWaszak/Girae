@@ -1,6 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import {
-  BoltIcon,
   BookmarkIcon,
   CartIcon,
   CategoryIcon,
@@ -43,7 +42,7 @@ export default function App() {
   const [savedIds, setSavedIds] = useState(() => loadStorage('girae_saved', []));
   const [visitedLog, setVisitedLog] = useState(() => loadStorage('girae_visited', []));
 
-  const [zoomState, setZoomState] = useState(null); // { product, imgIndex }
+  const [zoomState, setZoomState] = useState(null);
 
   useEffect(() => {
     localStorage.setItem('girae_cart', JSON.stringify(cartIds));
@@ -58,8 +57,9 @@ export default function App() {
   }, [visitedLog]);
 
   const featuredProducts = useMemo(() => {
-    const list = PRODUCTS.filter((p) => p.featuredWeek);
-    return list.sort((a, b) => b.impactScore - a.impactScore);
+    return PRODUCTS.filter((p) => p.featuredWeek).sort(
+      (a, b) => b.impactScore - a.impactScore
+    );
   }, []);
 
   const visibleFeatured = useMemo(() => {
@@ -71,7 +71,6 @@ export default function App() {
     return result;
   }, [featuredProducts, carouselOffset]);
 
-  // Navegação
   const goHome = () => {
     setView('home');
     setSelectedCategory(null);
@@ -133,7 +132,6 @@ export default function App() {
     });
   };
 
-  // Filtragem da página de Busca / Categorias
   const filteredProducts = useMemo(() => {
     const q = activeQuery.toLowerCase();
 
@@ -180,7 +178,6 @@ export default function App() {
     return sorted;
   }, [activeQuery, selectedCategory, selectedNiches, sortBy]);
 
-  // Nichos dinâmicos (para automaticamente quando não existem mais subnichos)
   const availableNextNiches = useMemo(() => {
     if (!selectedCategory || selectedCategory === 'Ofertas Relâmpago') return [];
     const depth = selectedNiches.length;
@@ -195,14 +192,12 @@ export default function App() {
     return Array.from(set);
   }, [filteredProducts, selectedCategory, selectedNiches]);
 
-  // Categorias encontradas durante uma busca por texto
   const searchMatchedCategories = useMemo(() => {
     if (selectedCategory) return [];
     const set = new Set(filteredProducts.map((p) => p.category));
     return Array.from(set);
   }, [filteredProducts, selectedCategory]);
 
-  // Listas de Carrinho e Salvos
   const cartProducts = useMemo(
     () => cartIds.map((id) => PRODUCTS.find((p) => p.id === id)).filter(Boolean),
     [cartIds]
@@ -236,7 +231,6 @@ export default function App() {
     <div>
       {/* ===== CABEÇALHO FIXO EM TODAS AS PÁGINAS ===== */}
       <header className="site-header">
-        <div className="header-top-stripe" />
         <div className="header-inner">
           <button type="button" className="brand-btn" onClick={goHome}>
             <GiraeLogo height={34} />
@@ -262,7 +256,7 @@ export default function App() {
           <div className="header-actions">
             <button
               type="button"
-              className={`header-nav-btn ${view === 'cart' ? 'active' : ''}`}
+              className={`pop-btn header-nav-btn ${view === 'cart' ? 'active' : ''}`}
               onClick={() => setView('cart')}
             >
               <CartIcon size={18} />
@@ -272,7 +266,7 @@ export default function App() {
 
             <button
               type="button"
-              className={`header-nav-btn ${view === 'saved' ? 'active' : ''}`}
+              className={`pop-btn header-nav-btn ${view === 'saved' ? 'active' : ''}`}
               onClick={() => setView('saved')}
             >
               <BookmarkIcon size={18} filled={view === 'saved'} />
@@ -283,56 +277,38 @@ export default function App() {
         </div>
       </header>
 
-      <main className="main-container">
-        {/* ==================== HOME ==================== */}
-        {view === 'home' && (
-          <>
-            {/* 1ª Dobra: As ofertas mais impressionantes da semana */}
-            <section className="hero-section">
-              <div className="section-header">
-                <div className="section-title-group">
-                  <h1 className="section-title">As mais impressionantes da semana</h1>
-                  <span className="cyber-pill">
-                    <BoltIcon size={12} />
-                    Maior impacto de economia
-                  </span>
-                </div>
-
-                {featuredProducts.length > 4 && (
-                  <div className="carousel-controls">
-                    <button
-                      type="button"
-                      className="carousel-arrow-btn"
-                      onClick={() =>
-                        setCarouselOffset(
-                          (prev) =>
-                            (prev - 1 + featuredProducts.length) % featuredProducts.length
-                        )
-                      }
-                      aria-label="Ofertas anteriores"
-                    >
-                      <ChevronLeftIcon size={18} />
-                    </button>
-                    <button
-                      type="button"
-                      className="carousel-arrow-btn"
-                      onClick={() =>
-                        setCarouselOffset((prev) => (prev + 1) % featuredProducts.length)
-                      }
-                      aria-label="Próximas ofertas"
-                    >
-                      <ChevronRightIcon size={18} />
-                    </button>
-                  </div>
-                )}
+      {/* ==================== HOME ==================== */}
+      {view === 'home' && (
+        <>
+          {/* 1ª Dobra: Palco Amarelo GIRAE com Vitrine Flutuante e Setas Laterais Grandes */}
+          <section className="hero-stage">
+            <div className="hero-stage-inner">
+              <div className="hero-heading-row">
+                <h1 className="hero-title">As mais impressionantes da semana</h1>
+                <span className="hero-note">*maior impacto econômico</span>
               </div>
 
-              <div className="hero-carousel-wrap">
+              <div className="hero-carousel-shell">
+                <button
+                  type="button"
+                  className="hero-side-arrow"
+                  onClick={() =>
+                    setCarouselOffset(
+                      (prev) =>
+                        (prev - 1 + featuredProducts.length) % featuredProducts.length
+                    )
+                  }
+                  aria-label="Ofertas anteriores"
+                >
+                  <ChevronLeftIcon size={28} />
+                </button>
+
                 <div className="product-grid-4">
                   {visibleFeatured.map((product) => (
                     <ProductCard
                       key={product.id}
                       product={product}
+                      isHero
                       inCart={cartIds.includes(product.id)}
                       isSaved={savedIds.includes(product.id)}
                       onToggleCart={toggleCart}
@@ -342,38 +318,30 @@ export default function App() {
                     />
                   ))}
                 </div>
-              </div>
-            </section>
 
-            {/* Aviso de direcionamento entre busca e categorias */}
-            <div className="guide-banner">
-              <div>
-                <p className="guide-banner-text">
-                  Veja se seu produto está aqui: pesquise na busca acima ou vá às categorias abaixo.
-                </p>
-                <p className="guide-banner-sub">
-                  Procurando algo específico? Digite direto na barra "Qual você iria comprar?" no topo.
-                </p>
+                <button
+                  type="button"
+                  className="hero-side-arrow"
+                  onClick={() =>
+                    setCarouselOffset((prev) => (prev + 1) % featuredProducts.length)
+                  }
+                  aria-label="Próximas ofertas"
+                >
+                  <ChevronRightIcon size={28} />
+                </button>
               </div>
-              <button
-                type="button"
-                className="guide-action-btn"
-                onClick={() => {
-                  setSelectedCategory(null);
-                  setSelectedNiches([]);
-                  setActiveQuery('');
-                  setView('search');
-                }}
-              >
-                Ver todas as ofertas ({PRODUCTS.length})
-              </button>
+            </div>
+          </section>
+
+          {/* 2ª Dobra: Aviso limpo + Categorias */}
+          <main className="main-container">
+            <div className="simple-guide-bar">
+              <p>Pesquise na busca acima ou escolha uma categoria abaixo</p>
+              <span>Procurando algo específico? Digite direto na barra "Qual você iria comprar?".</span>
             </div>
 
-            {/* 2ª Dobra: Todas as Categorias */}
-            <section className="categories-section">
-              <div className="section-header">
-                <h2 className="section-title">Categorias</h2>
-              </div>
+            <section>
+              <h2 className="section-title">Categorias</h2>
 
               <div className="categories-grid">
                 {CATEGORIES.map((cat) => {
@@ -403,373 +371,385 @@ export default function App() {
                 })}
               </div>
             </section>
-          </>
-        )}
+          </main>
+        </>
+      )}
 
-        {/* ==================== BUSCA E CATEGORIAS ==================== */}
-        {view === 'search' && (
-          <div className="catalog-layout">
-            <aside className="sidebar-panel">
-              {/* Breadcrumb */}
-              <div className="breadcrumb-row">
-                <button type="button" className="breadcrumb-link" onClick={goHome}>
-                  Início
-                </button>
-                {selectedCategory && (
-                  <>
-                    <span>/</span>
-                    <button
-                      type="button"
-                      className="breadcrumb-link"
-                      onClick={() => setSelectedNiches([])}
-                    >
-                      {selectedCategory}
-                    </button>
-                  </>
-                )}
-                {selectedNiches.map((niche, index) => (
-                  <React.Fragment key={niche}>
-                    <span>/</span>
-                    <button
-                      type="button"
-                      className="breadcrumb-link"
-                      onClick={() => setSelectedNiches(selectedNiches.slice(0, index + 1))}
-                    >
-                      {niche}
-                    </button>
-                  </React.Fragment>
-                ))}
-              </div>
-
-              {/* Título e quantidade */}
-              <h1 className="sidebar-main-title">
-                {selectedNiches[selectedNiches.length - 1] ||
-                  selectedCategory ||
-                  (activeQuery ? `"${activeQuery}"` : 'Todas as ofertas')}
-              </h1>
-              <p className="sidebar-count">{resultRangeLabel(filteredProducts.length)}</p>
-
-              {/* Filtros essenciais de ordenação */}
-              <div className="sidebar-block">
-                <div className="sidebar-block-title">Filtro</div>
-                <div className="filter-list">
-                  {[
-                    { id: 'impressive', label: 'Mais impressionantes' },
-                    { id: 'price_asc', label: 'Menor preço' },
-                    { id: 'price_desc', label: 'Maior preço' },
-                    { id: 'alpha', label: 'Ordem alfabética (A-Z)' },
-                    { id: 'newest', label: 'Mais recentes' },
-                  ].map((opt) => (
-                    <button
-                      key={opt.id}
-                      type="button"
-                      className={`filter-option-btn ${sortBy === opt.id ? 'active' : ''}`}
-                      onClick={() => setSortBy(opt.id)}
-                    >
-                      <span>{opt.label}</span>
-                    </button>
+      {/* ==================== BUSCA, CARRINHO E SALVOS ==================== */}
+      {view !== 'home' && (
+        <main className="main-container">
+          {view === 'search' && (
+            <div className="catalog-layout">
+              <aside className="sidebar-panel">
+                <div className="breadcrumb-row">
+                  <button type="button" className="breadcrumb-link" onClick={goHome}>
+                    Início
+                  </button>
+                  {selectedCategory && (
+                    <>
+                      <span>/</span>
+                      <button
+                        type="button"
+                        className="breadcrumb-link"
+                        onClick={() => setSelectedNiches([])}
+                      >
+                        {selectedCategory}
+                      </button>
+                    </>
+                  )}
+                  {selectedNiches.map((niche, index) => (
+                    <React.Fragment key={niche}>
+                      <span>/</span>
+                      <button
+                        type="button"
+                        className="breadcrumb-link"
+                        onClick={() => setSelectedNiches(selectedNiches.slice(0, index + 1))}
+                      >
+                        {niche}
+                      </button>
+                    </React.Fragment>
                   ))}
                 </div>
-              </div>
 
-              {/* Nichos dinâmicos (desaparece automaticamente quando não há mais subnichos) */}
-              {availableNextNiches.length > 0 && (
+                <h1 className="sidebar-main-title">
+                  {selectedNiches[selectedNiches.length - 1] ||
+                    selectedCategory ||
+                    (activeQuery ? `"${activeQuery}"` : 'Resultados')}
+                </h1>
+                <p className="sidebar-count">{resultRangeLabel(filteredProducts.length)}</p>
+
                 <div className="sidebar-block">
-                  <div className="sidebar-block-title">Nichos</div>
+                  <div className="sidebar-block-title">Filtro</div>
                   <div className="filter-list">
-                    {availableNextNiches.map((niche) => (
+                    {[
+                      { id: 'impressive', label: 'Mais impressionantes' },
+                      { id: 'price_asc', label: 'Menor preço' },
+                      { id: 'price_desc', label: 'Maior preço' },
+                      { id: 'alpha', label: 'Ordem alfabética (A-Z)' },
+                      { id: 'newest', label: 'Mais recentes' },
+                    ].map((opt) => (
                       <button
-                        key={niche}
+                        key={opt.id}
                         type="button"
-                        className="filter-option-btn"
-                        onClick={() => setSelectedNiches((prev) => [...prev, niche])}
+                        className={`filter-option-btn ${sortBy === opt.id ? 'active' : ''}`}
+                        onClick={() => setSortBy(opt.id)}
                       >
-                        <span>{niche}</span>
-                        <ChevronRightIcon size={14} />
+                        <span>{opt.label}</span>
                       </button>
                     ))}
                   </div>
                 </div>
-              )}
 
-              {/* Categorias encontradas na pesquisa por texto */}
-              {!selectedCategory && searchMatchedCategories.length > 0 && (
-                <div className="sidebar-block">
-                  <div className="sidebar-block-title">Categorias</div>
-                  <div className="filter-list">
-                    {searchMatchedCategories.map((catName) => (
-                      <button
-                        key={catName}
-                        type="button"
-                        className="filter-option-btn"
-                        onClick={() => setSelectedCategory(catName)}
-                      >
-                        <span>{catName}</span>
-                        <ChevronRightIcon size={14} />
-                      </button>
+                {availableNextNiches.length > 0 && (
+                  <div className="sidebar-block">
+                    <div className="sidebar-block-title">Nichos</div>
+                    <div className="filter-list">
+                      {availableNextNiches.map((niche) => (
+                        <button
+                          key={niche}
+                          type="button"
+                          className="filter-option-btn"
+                          onClick={() => setSelectedNiches((prev) => [...prev, niche])}
+                        >
+                          <span>{niche}</span>
+                          <ChevronRightIcon size={14} />
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {!selectedCategory && searchMatchedCategories.length > 0 && (
+                  <div className="sidebar-block">
+                    <div className="sidebar-block-title">Categorias</div>
+                    <div className="filter-list">
+                      {searchMatchedCategories.map((catName) => (
+                        <button
+                          key={catName}
+                          type="button"
+                          className="filter-option-btn"
+                          onClick={() => setSelectedCategory(catName)}
+                        >
+                          <span>{catName}</span>
+                          <ChevronRightIcon size={14} />
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {(selectedCategory || selectedNiches.length > 0 || activeQuery) && (
+                  <button
+                    type="button"
+                    className="pop-btn clear-filters-btn"
+                    onClick={() => {
+                      setSelectedCategory(null);
+                      setSelectedNiches([]);
+                      setActiveQuery('');
+                      setSearchInput('');
+                    }}
+                  >
+                    Limpar filtros
+                  </button>
+                )}
+
+                <div className="sidebar-tip">
+                  Algo específico? Digite direto na barra de pesquisa no topo.
+                </div>
+              </aside>
+
+              <section>
+                {filteredProducts.length === 0 ? (
+                  <div className="empty-state">
+                    <h3>Nenhuma oferta encontrada</h3>
+                    <p>Tente outro termo na barra acima ou volte para explorar as categorias.</p>
+                    <button
+                      type="button"
+                      className="pop-btn btn-action-sm"
+                      style={{ background: 'var(--girae-yellow)' }}
+                      onClick={goHome}
+                    >
+                      Voltar para o início
+                    </button>
+                  </div>
+                ) : (
+                  <div className="product-grid-4">
+                    {filteredProducts.map((product) => (
+                      <ProductCard
+                        key={product.id}
+                        product={product}
+                        inCart={cartIds.includes(product.id)}
+                        isSaved={savedIds.includes(product.id)}
+                        onToggleCart={toggleCart}
+                        onToggleSave={toggleSave}
+                        onVisitStore={handleVisitStore}
+                        onOpenZoom={(p, idx) => setZoomState({ product: p, imgIndex: idx })}
+                      />
                     ))}
                   </div>
-                </div>
-              )}
+                )}
+              </section>
+            </div>
+          )}
 
-              {(selectedCategory || selectedNiches.length > 0 || activeQuery) && (
-                <button
-                  type="button"
-                  className="clear-filters-btn"
-                  onClick={() => {
-                    setSelectedCategory(null);
-                    setSelectedNiches([]);
-                    setActiveQuery('');
-                    setSearchInput('');
-                  }}
-                >
-                  Limpar filtros
-                </button>
-              )}
-
-              <div className="sidebar-tip">
-                Procurando algo específico? Use a barra de pesquisa no topo.
-              </div>
-            </aside>
-
-            {/* Grade padrão de 4 produtos por linha */}
+          {view === 'cart' && (
             <section>
-              {filteredProducts.length === 0 ? (
+              <div className="list-page-header">
+                <h1 className="list-page-title">
+                  <CartIcon size={25} />
+                  Carrinho
+                </h1>
+                <button type="button" className="pop-btn btn-action-sm" onClick={goHome}>
+                  Continuar vendo ofertas
+                </button>
+              </div>
+
+              {cartProducts.length > 0 && (
+                <div className="cart-summary-bar">
+                  <div className="summary-metric">
+                    <span>Itens na sua lista</span>
+                    <strong>{cartProducts.length}</strong>
+                  </div>
+                  <div className="summary-metric">
+                    <span>Total nos menores preços</span>
+                    <strong>{formatBRL(cartTotals.total)}</strong>
+                  </div>
+                  <div className="summary-metric savings">
+                    <span>Economia estimada</span>
+                    <strong>{formatBRL(cartTotals.savings)}</strong>
+                  </div>
+                </div>
+              )}
+
+              {cartProducts.length === 0 ? (
                 <div className="empty-state">
-                  <h3>Nenhuma oferta encontrada para essa busca</h3>
-                  <p>Tente outro termo na barra acima ou explore todas as categorias da GIRAE.</p>
-                  <button type="button" className="guide-action-btn" onClick={goHome}>
-                    Voltar para o início
+                  <h3>Seu carrinho está vazio</h3>
+                  <p>Clique no ícone de carrinho nos anúncios para montar sua lista de compras.</p>
+                  <button
+                    type="button"
+                    className="pop-btn btn-action-sm"
+                    style={{ background: 'var(--girae-yellow)' }}
+                    onClick={goHome}
+                  >
+                    Ver ofertas da semana
                   </button>
                 </div>
               ) : (
-                <div className="product-grid-4">
-                  {filteredProducts.map((product) => (
-                    <ProductCard
-                      key={product.id}
-                      product={product}
-                      inCart={cartIds.includes(product.id)}
-                      isSaved={savedIds.includes(product.id)}
-                      onToggleCart={toggleCart}
-                      onToggleSave={toggleSave}
-                      onVisitStore={handleVisitStore}
-                      onOpenZoom={(p, idx) => setZoomState({ product: p, imgIndex: idx })}
-                    />
-                  ))}
-                </div>
-              )}
-            </section>
-          </div>
-        )}
-
-        {/* ==================== CARRINHO ==================== */}
-        {view === 'cart' && (
-          <section>
-            <div className="list-page-header">
-              <h1 className="list-page-title">
-                <CartIcon size={24} />
-                Carrinho
-              </h1>
-              <button type="button" className="btn-secondary-sm" onClick={goHome}>
-                Continuar vendo ofertas
-              </button>
-            </div>
-
-            {cartProducts.length > 0 && (
-              <div className="cart-summary-bar">
-                <div className="summary-metric">
-                  <span>Itens na sua lista</span>
-                  <strong>{cartProducts.length}</strong>
-                </div>
-                <div className="summary-metric">
-                  <span>Total nos menores preços</span>
-                  <strong>{formatBRL(cartTotals.total)}</strong>
-                </div>
-                <div className="summary-metric savings">
-                  <span>Economia estimada</span>
-                  <strong>{formatBRL(cartTotals.savings)}</strong>
-                </div>
-              </div>
-            )}
-
-            {cartProducts.length === 0 ? (
-              <div className="empty-state">
-                <h3>Seu carrinho está vazio</h3>
-                <p>Use o ícone de carrinho nos anúncios para montar sua lista de compras comparada.</p>
-                <button type="button" className="guide-action-btn" onClick={goHome}>
-                  Explorar ofertas da semana
-                </button>
-              </div>
-            ) : (
-              <div className="vertical-list-card">
-                {cartProducts.map((product) => {
-                  const best = getSortedStores(product)[0];
-                  const savings = getMaxSavings(product);
-                  return (
-                    <div key={product.id} className="list-item-row">
-                      <img src={product.images[0]} alt={product.title} className="list-thumb" />
-                      <div className="list-item-info">
-                        <h3>{product.title}</h3>
-                        <div className="list-item-meta">
-                          <span className="list-item-price">{formatBRL(best.price)}</span>
-                          <span>Menor preço na <strong>{best.name}</strong></span>
-                          {savings > 0 && (
-                            <span className="diff-tag">Economia de {formatBRL(savings)}</span>
-                          )}
-                        </div>
-                      </div>
-                      <div className="list-item-actions">
-                        <a
-                          href={best.url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="card-buy-btn"
-                          style={{ padding: '0 16px' }}
-                          onClick={() => handleVisitStore(product, best)}
-                        >
-                          Comprar
-                          <ExternalLinkIcon size={14} />
-                        </a>
-                        <button
-                          type="button"
-                          className="btn-danger-icon"
-                          onClick={() => toggleCart(product.id)}
-                          title="Remover do carrinho"
-                        >
-                          <TrashIcon size={16} />
-                        </button>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            )}
-
-            {/* Histórico automático de lojas visitadas ao clicar em Comprar */}
-            {visitedLog.length > 0 && (
-              <div style={{ marginTop: 28 }}>
-                <div className="section-header">
-                  <h2 className="section-title">Lojas que você visitou recentemente</h2>
-                  <button
-                    type="button"
-                    className="btn-secondary-sm"
-                    onClick={() => setVisitedLog([])}
-                  >
-                    Limpar histórico
-                  </button>
-                </div>
-
                 <div className="vertical-list-card">
-                  {visitedLog.map((entry) => {
-                    const product = PRODUCTS.find((p) => p.id === entry.productId);
-                    if (!product) return null;
+                  {cartProducts.map((product) => {
+                    const best = getSortedStores(product)[0];
+                    const savings = getMaxSavings(product);
                     return (
-                      <div key={entry.productId} className="list-item-row">
+                      <div key={product.id} className="list-item-row">
                         <img src={product.images[0]} alt={product.title} className="list-thumb" />
                         <div className="list-item-info">
                           <h3>{product.title}</h3>
                           <div className="list-item-meta">
-                            <span>
-                              Você abriu <strong>{entry.storeName}</strong> às {entry.visitedAt}
-                            </span>
-                            <span className="list-item-price">{formatBRL(entry.storePrice)}</span>
+                            <span className="list-item-price">{formatBRL(best.price)}</span>
+                            <span>Menor preço na <strong>{best.name}</strong></span>
+                            {savings > 0 && (
+                              <span className="compare-diff">-{formatBRL(savings).replace(',00', '')}</span>
+                            )}
                           </div>
                         </div>
                         <div className="list-item-actions">
                           <a
-                            href={entry.storeUrl}
+                            href={best.url}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="btn-secondary-sm"
+                            className="pop-btn card-buy-btn"
+                            style={{ padding: '0 18px' }}
+                            onClick={() => handleVisitStore(product, best)}
                           >
-                            Voltar à loja
+                            Comprar
                             <ExternalLinkIcon size={14} />
                           </a>
+                          <button
+                            type="button"
+                            className="pop-btn btn-danger-icon"
+                            onClick={() => toggleCart(product.id)}
+                            title="Remover do carrinho"
+                          >
+                            <TrashIcon size={16} />
+                          </button>
                         </div>
                       </div>
                     );
                   })}
                 </div>
-              </div>
-            )}
-          </section>
-        )}
+              )}
 
-        {/* ==================== SALVOS ==================== */}
-        {view === 'saved' && (
-          <section>
-            <div className="list-page-header">
-              <h1 className="list-page-title">
-                <BookmarkIcon size={24} filled />
-                Salvos
-              </h1>
-              <button type="button" className="btn-secondary-sm" onClick={goHome}>
-                Continuar vendo ofertas
-              </button>
-            </div>
+              {visitedLog.length > 0 && (
+                <div style={{ marginTop: 28 }}>
+                  <div className="list-page-header">
+                    <h2 className="section-title" style={{ marginBottom: 0 }}>
+                      Lojas visitadas recentemente
+                    </h2>
+                    <button
+                      type="button"
+                      className="pop-btn btn-action-sm"
+                      onClick={() => setVisitedLog([])}
+                    >
+                      Limpar histórico
+                    </button>
+                  </div>
 
-            {savedProducts.length === 0 ? (
-              <div className="empty-state">
-                <h3>Nenhuma oferta salva ainda</h3>
-                <p>Clique no ícone de marcador nos anúncios para acompanhar os preços depois.</p>
-                <button type="button" className="guide-action-btn" onClick={goHome}>
-                  Explorar ofertas da semana
+                  <div className="vertical-list-card">
+                    {visitedLog.map((entry) => {
+                      const product = PRODUCTS.find((p) => p.id === entry.productId);
+                      if (!product) return null;
+                      return (
+                        <div key={entry.productId} className="list-item-row">
+                          <img src={product.images[0]} alt={product.title} className="list-thumb" />
+                          <div className="list-item-info">
+                            <h3>{product.title}</h3>
+                            <div className="list-item-meta">
+                              <span>
+                                Aberto na <strong>{entry.storeName}</strong> às {entry.visitedAt}
+                              </span>
+                              <span className="list-item-price">{formatBRL(entry.storePrice)}</span>
+                            </div>
+                          </div>
+                          <div className="list-item-actions">
+                            <a
+                              href={entry.storeUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="pop-btn btn-action-sm"
+                            >
+                              Voltar à loja
+                              <ExternalLinkIcon size={14} />
+                            </a>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+            </section>
+          )}
+
+          {view === 'saved' && (
+            <section>
+              <div className="list-page-header">
+                <h1 className="list-page-title">
+                  <BookmarkIcon size={25} filled />
+                  Salvos
+                </h1>
+                <button type="button" className="pop-btn btn-action-sm" onClick={goHome}>
+                  Continuar vendo ofertas
                 </button>
               </div>
-            ) : (
-              <div className="vertical-list-card">
-                {savedProducts.map((product) => {
-                  const best = getSortedStores(product)[0];
-                  const inCart = cartIds.includes(product.id);
-                  return (
-                    <div key={product.id} className="list-item-row">
-                      <img src={product.images[0]} alt={product.title} className="list-thumb" />
-                      <div className="list-item-info">
-                        <h3>{product.title}</h3>
-                        <div className="list-item-meta">
-                          <span className="list-item-price">{formatBRL(best.price)}</span>
-                          <span>Menor preço na <strong>{best.name}</strong></span>
+
+              {savedProducts.length === 0 ? (
+                <div className="empty-state">
+                  <h3>Nenhuma oferta salva ainda</h3>
+                  <p>Clique no marcador nos anúncios para guardar e acompanhar depois.</p>
+                  <button
+                    type="button"
+                    className="pop-btn btn-action-sm"
+                    style={{ background: 'var(--girae-yellow)' }}
+                    onClick={goHome}
+                  >
+                    Ver ofertas da semana
+                  </button>
+                </div>
+              ) : (
+                <div className="vertical-list-card">
+                  {savedProducts.map((product) => {
+                    const best = getSortedStores(product)[0];
+                    const inCart = cartIds.includes(product.id);
+                    return (
+                      <div key={product.id} className="list-item-row">
+                        <img src={product.images[0]} alt={product.title} className="list-thumb" />
+                        <div className="list-item-info">
+                          <h3>{product.title}</h3>
+                          <div className="list-item-meta">
+                            <span className="list-item-price">{formatBRL(best.price)}</span>
+                            <span>Menor preço na <strong>{best.name}</strong></span>
+                          </div>
+                        </div>
+                        <div className="list-item-actions">
+                          <button
+                            type="button"
+                            className="pop-btn btn-action-sm"
+                            onClick={() => toggleCart(product.id)}
+                          >
+                            <CartIcon size={15} />
+                            {inCart ? 'No carrinho' : 'Add carrinho'}
+                          </button>
+                          <a
+                            href={best.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="pop-btn card-buy-btn"
+                            style={{ padding: '0 18px' }}
+                            onClick={() => handleVisitStore(product, best)}
+                          >
+                            Comprar
+                            <ExternalLinkIcon size={14} />
+                          </a>
+                          <button
+                            type="button"
+                            className="pop-btn btn-danger-icon"
+                            onClick={() => toggleSave(product.id)}
+                            title="Remover dos salvos"
+                          >
+                            <TrashIcon size={16} />
+                          </button>
                         </div>
                       </div>
-                      <div className="list-item-actions">
-                        <button
-                          type="button"
-                          className="btn-secondary-sm"
-                          onClick={() => toggleCart(product.id)}
-                        >
-                          <CartIcon size={15} />
-                          {inCart ? 'No carrinho' : 'Add carrinho'}
-                        </button>
-                        <a
-                          href={best.url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="card-buy-btn"
-                          style={{ padding: '0 16px' }}
-                          onClick={() => handleVisitStore(product, best)}
-                        >
-                          Comprar
-                          <ExternalLinkIcon size={14} />
-                        </a>
-                        <button
-                          type="button"
-                          className="btn-danger-icon"
-                          onClick={() => toggleSave(product.id)}
-                          title="Remover dos salvos"
-                        >
-                          <TrashIcon size={16} />
-                        </button>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            )}
-          </section>
-        )}
-      </main>
+                    );
+                  })}
+                </div>
+              )}
+            </section>
+          )}
+        </main>
+      )}
 
-      {/* ===== MODAL DE ZOOM RÁPIDO DA IMAGEM ===== */}
+      {/* ===== MODAL DE ZOOM RÁPIDO ===== */}
       {zoomState && (
         <div className="modal-backdrop" onClick={() => setZoomState(null)}>
           <div className="modal-box" onClick={(e) => e.stopPropagation()}>
@@ -777,7 +757,7 @@ export default function App() {
               <h3 className="card-title">{zoomState.product.title}</h3>
               <button
                 type="button"
-                className="icon-toggle-btn"
+                className="mini-pop-icon"
                 onClick={() => setZoomState(null)}
                 aria-label="Fechar zoom"
               >
@@ -824,8 +804,8 @@ export default function App() {
 
             <div className="modal-footer">
               <div>
-                <span className="best-price-label">Menor preço verificado</span>
-                <span className="best-price-value">
+                <span className="best-price-caption">Menor preço verificado</span>
+                <span className="best-price-num">
                   {formatBRL(getSortedStores(zoomState.product)[0].price)}
                 </span>
               </div>
@@ -833,7 +813,7 @@ export default function App() {
                 href={getSortedStores(zoomState.product)[0].url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="card-buy-btn"
+                className="pop-btn card-buy-btn"
                 style={{ padding: '0 22px' }}
                 onClick={() =>
                   handleVisitStore(

@@ -7,7 +7,7 @@ import {
   ExternalLinkIcon,
   VerifiedIcon,
 } from './Icons';
-import { formatBRL, getMaxSavings, getSortedStores } from '../data/products';
+import { formatBRL, getSortedStores } from '../data/products';
 
 export default function ProductCard({
   product,
@@ -17,13 +17,15 @@ export default function ProductCard({
   onToggleSave,
   onVisitStore,
   onOpenZoom,
+  isHero = false,
 }) {
   const [imgIndex, setImgIndex] = useState(0);
+  const [showAllStores, setShowAllStores] = useState(false);
 
   const stores = getSortedStores(product);
   const bestStore = stores[0];
-  const otherStores = stores.slice(1);
-  const maxSavings = getMaxSavings(product);
+  const secondStore = stores[1];
+  const extraStores = stores.slice(2);
   const totalImages = product.images.length;
 
   const handlePrev = (e) => {
@@ -36,34 +38,59 @@ export default function ProductCard({
     setImgIndex((prev) => (prev + 1) % totalImages);
   };
 
-  const handleStoreClick = (store) => {
-    onVisitStore(product, store);
+  const renderCompareRow = (store) => {
+    const diff = store.price - bestStore.price;
+    return (
+      <a
+        key={store.name}
+        href={store.url}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="compare-row"
+        onClick={() => onVisitStore(product, store)}
+        title={`Ver na ${store.name}`}
+      >
+        <div className="compare-left">
+          <span
+            className="store-mini-code"
+            style={{ background: store.color, color: store.textColor }}
+          >
+            {store.badge}
+          </span>
+          <span className="compare-store-label">{store.name}</span>
+        </div>
+
+        <div className="compare-right">
+          <span className="compare-price">{formatBRL(store.price)}</span>
+          {diff > 0 && (
+            <span className="compare-diff" title="Diferença em relação ao menor preço">
+              -{formatBRL(diff).replace(',00', '')}
+            </span>
+          )}
+        </div>
+      </a>
+    );
   };
 
   return (
-    <article className="product-card">
-      {/* Título + Selo Original (quando aplicável) */}
-      <div className="card-top-row">
+    <article className={`product-card ${isHero ? 'hero-card' : ''}`}>
+      {/* 1. Título limpo */}
+      <div className="card-title-bar">
         <h3 className="card-title" title={product.title}>
           {product.title}
         </h3>
-        {product.isOriginal && (
-          <span className="original-badge" title="Produto Original Verificado">
-            <VerifiedIcon size={12} />
-            Original
-          </span>
-        )}
       </div>
 
-      {/* Carrossel de Imagens (clique abre zoom leve sem sair da vitrine) */}
+      {/* 2. Foto CRUA sem tarjas (apenas Original discreto no canto se aplicável) */}
       <div
         className="card-media-box"
         onClick={() => onOpenZoom(product, imgIndex)}
-        title="Clique para ampliar a imagem"
+        title="Clique para ampliar"
       >
-        {maxSavings >= 50 && (
-          <span className="economy-float-tag">
-            Economize até {formatBRL(maxSavings)}
+        {product.isOriginal && (
+          <span className="original-stamp" title="Produto Original">
+            <VerifiedIcon size={13} />
+            Original
           </span>
         )}
 
@@ -96,122 +123,105 @@ export default function ProductCard({
         )}
       </div>
 
-      {/* Barra inferior da foto: Carrinho | Bolinhas | Salvos */}
-      <div className="card-media-toolbar">
-        <button
-          type="button"
-          className={`icon-toggle-btn ${inCart ? 'active-cart' : ''}`}
-          onClick={() => onToggleCart(product.id)}
-          title={inCart ? 'Remover do carrinho' : 'Adicionar ao carrinho'}
-          aria-label="Adicionar ao carrinho"
-        >
-          <CartIcon size={16} />
-        </button>
-
-        <div className="dots-row">
-          {product.images.map((_, idx) => (
-            <button
-              key={idx}
-              type="button"
-              className={`dot-btn ${idx === imgIndex ? 'active' : ''}`}
-              onClick={() => setImgIndex(idx)}
-              aria-label={`Ver imagem ${idx + 1}`}
-            />
-          ))}
-        </div>
-
-        <button
-          type="button"
-          className={`icon-toggle-btn ${isSaved ? 'active-save' : ''}`}
-          onClick={() => onToggleSave(product.id)}
-          title={isSaved ? 'Remover dos salvos' : 'Salvar oferta'}
-          aria-label="Salvar oferta"
-        >
-          <BookmarkIcon size={16} filled={isSaved} />
-        </button>
-      </div>
-
-      {/* Comparador direto no anúncio (até 5 lojas com impacto de economia) */}
-      <div className="price-compare-box">
-        <a
-          href={bestStore.url}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="best-price-block"
-          onClick={() => handleStoreClick(bestStore)}
-          title={`Ir para ${bestStore.name}`}
-        >
-          <div>
-            <span className="best-price-label">Menor preço</span>
-            <span className="best-price-value">{formatBRL(bestStore.price)}</span>
-          </div>
-          <span
-            className="store-pill"
-            style={{ background: bestStore.color, color: bestStore.textColor }}
+      {/* 3. Corpo do anúncio */}
+      <div className="card-body">
+        {/* Barra: [Carrinho] | • • • | [Salvos] */}
+        <div className="card-media-toolbar">
+          <button
+            type="button"
+            className={`mini-pop-icon ${inCart ? 'active-cart' : ''}`}
+            onClick={() => onToggleCart(product.id)}
+            title={inCart ? 'Remover do carrinho' : 'Adicionar ao carrinho'}
+            aria-label="Adicionar ao carrinho"
           >
-            {bestStore.name}
-          </span>
-        </a>
+            <CartIcon size={16} />
+          </button>
 
-        <div className="compare-list">
-          {otherStores.map((store) => {
-            const diff = store.price - bestStore.price;
-            return (
-              <a
-                key={store.name}
-                href={store.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="compare-row"
-                onClick={() => handleStoreClick(store)}
-                title={`Ver na ${store.name}`}
-              >
-                <div className="compare-store-left">
-                  <span
-                    className="store-mini-logo"
-                    style={{ background: store.color, color: store.textColor }}
-                  >
-                    {store.badge}
-                  </span>
-                  <span className="compare-store-name">{store.name}</span>
-                </div>
+          <div className="dots-row">
+            {product.images.map((_, idx) => (
+              <button
+                key={idx}
+                type="button"
+                className={`dot-btn ${idx === imgIndex ? 'active' : ''}`}
+                onClick={() => setImgIndex(idx)}
+                aria-label={`Ver imagem ${idx + 1}`}
+              />
+            ))}
+          </div>
 
-                <div className="compare-price-right">
-                  <span className="compare-price-val">{formatBRL(store.price)}</span>
-                  {diff > 0 && (
-                    <span className="diff-tag" title="Quanto você economiza no menor preço">
-                      -{formatBRL(diff).replace(',00', '')}
-                    </span>
-                  )}
-                </div>
-              </a>
-            );
-          })}
+          <button
+            type="button"
+            className={`mini-pop-icon ${isSaved ? 'active-save' : ''}`}
+            onClick={() => onToggleSave(product.id)}
+            title={isSaved ? 'Remover dos salvos' : 'Salvar oferta'}
+            aria-label="Salvar oferta"
+          >
+            <BookmarkIcon size={16} filled={isSaved} />
+          </button>
         </div>
-      </div>
 
-      {/* Ações finais: [Carrinho da Girae] + [COMPRAR direto na loja oficial] */}
-      <div className="card-footer-actions">
-        <button
-          type="button"
-          className={`card-cart-btn ${inCart ? 'active' : ''}`}
-          onClick={() => onToggleCart(product.id)}
-          title={inCart ? 'No seu carrinho' : 'Guardar no carrinho'}
-          aria-label="Carrinho da loja"
-        >
-          <CartIcon size={18} />
-        </button>
+        {/* Comparação limpa: Menor preço + 2º menor preço + Suspensório Mostrar mais */}
+        <div className="price-stack">
+          <a
+            href={bestStore.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="best-price-row"
+            onClick={() => onVisitStore(product, bestStore)}
+            title={`Ir para ${bestStore.name}`}
+          >
+            <div>
+              <span className="best-price-caption">Menor preço</span>
+              <span className="best-price-num">{formatBRL(bestStore.price)}</span>
+            </div>
+            <span
+              className="store-tag-solid"
+              style={{ background: bestStore.color, color: bestStore.textColor }}
+            >
+              {bestStore.name}
+            </span>
+          </a>
 
-        <a
-          href={bestStore.url}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="card-buy-btn"
-          onClick={() => handleStoreClick(bestStore)}
-        >
-          COMPRAR
-          <ExternalLinkIcon size={14} />
-        </a>
+          {secondStore && renderCompareRow(secondStore)}
+
+          {showAllStores && extraStores.map((store) => renderCompareRow(store))}
+
+          {extraStores.length > 0 && (
+            <button
+              type="button"
+              className="show-more-stores-btn"
+              onClick={() => setShowAllStores((prev) => !prev)}
+            >
+              {showAllStores
+                ? 'Mostrar menos'
+                : `••• Mostrar mais (+${extraStores.length})`}
+            </button>
+          )}
+        </div>
+
+        {/* Rodapé: [Carrinho] + [COMPRAR] */}
+        <div className="card-footer-actions">
+          <button
+            type="button"
+            className={`pop-btn card-cart-btn ${inCart ? 'active' : ''}`}
+            onClick={() => onToggleCart(product.id)}
+            title={inCart ? 'No seu carrinho' : 'Guardar no carrinho'}
+            aria-label="Carrinho da loja"
+          >
+            <CartIcon size={18} />
+          </button>
+
+          <a
+            href={bestStore.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="pop-btn card-buy-btn"
+            onClick={() => onVisitStore(product, bestStore)}
+          >
+            Comprar
+            <ExternalLinkIcon size={14} />
+          </a>
+        </div>
       </div>
     </article>
   );
