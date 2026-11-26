@@ -1,49 +1,57 @@
 import React from 'react';
 
-export function GiraeLogo({ height = 34 }) {
+export function GiraeLogo({ height = 42, variant = 'onYellow' }) {
+  const letterFill = variant === 'onYellow' ? '#FFFFFF' : '#FFD400';
+
   return (
     <svg
       height={height}
-      viewBox="0 0 218 54"
+      viewBox="0 0 228 58"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
       aria-label="GIRAE"
     >
-      {/* Sombra sólida estilo Pop Retail */}
-      <g transform="translate(3, 3.5)" fill="#111111">
+      {/* Sombra sólida offset (estilo oficial da marca) */}
+      <g
+        transform="translate(3.5, 4)"
+        fill="#111111"
+        stroke="#111111"
+        strokeWidth="3.2"
+        strokeLinejoin="round"
+      >
         <text
-          x="2"
-          y="42"
-          fontFamily="Poppins, Arial Black, sans-serif"
+          x="4"
+          y="44"
+          fontFamily="Nunito, Arial Black, sans-serif"
           fontWeight="900"
-          fontSize="43"
+          fontSize="45"
           letterSpacing="-1"
         >
           G
         </text>
-        <path d="M59 4L41 30H54L46 50L69 22H55L59 4Z" />
+        <path d="M61 5L44 32H56L49 52L72 24H58L61 5Z" />
         <text
-          x="74"
-          y="42"
-          fontFamily="Poppins, Arial Black, sans-serif"
+          x="77"
+          y="44"
+          fontFamily="Nunito, Arial Black, sans-serif"
           fontWeight="900"
-          fontSize="43"
+          fontSize="45"
           letterSpacing="1"
         >
           RAE
         </text>
       </g>
 
-      {/* Letras amarelas com contorno preto (versão fundo branco oficial) */}
+      {/* Letras principais */}
       <text
-        x="2"
-        y="42"
-        fontFamily="Poppins, Arial Black, sans-serif"
+        x="4"
+        y="44"
+        fontFamily="Nunito, Arial Black, sans-serif"
         fontWeight="900"
-        fontSize="43"
-        fill="#FFD400"
+        fontSize="45"
+        fill={letterFill}
         stroke="#111111"
-        strokeWidth="3.2"
+        strokeWidth="3.4"
         paintOrder="stroke fill"
         strokeLinejoin="round"
         letterSpacing="-1"
@@ -51,30 +59,30 @@ export function GiraeLogo({ height = 34 }) {
         G
       </text>
 
-      {/* Raio vermelho no lugar do I */}
+      {/* Raio vermelho com contorno preto e brilho branco */}
       <path
-        d="M59 4L41 30H54L46 50L69 22H55L59 4Z"
+        d="M61 5L44 32H56L49 52L72 24H58L61 5Z"
         fill="#E3192B"
         stroke="#111111"
         strokeWidth="2.8"
         strokeLinejoin="round"
       />
       <path
-        d="M55.5 11.5L47.5 24.5"
+        d="M57 12.5L49.5 25.5"
         stroke="#FFFFFF"
-        strokeWidth="2.2"
+        strokeWidth="2.3"
         strokeLinecap="round"
       />
 
       <text
-        x="74"
-        y="42"
-        fontFamily="Poppins, Arial Black, sans-serif"
+        x="77"
+        y="44"
+        fontFamily="Nunito, Arial Black, sans-serif"
         fontWeight="900"
-        fontSize="43"
-        fill="#FFD400"
+        fontSize="45"
+        fill={letterFill}
         stroke="#111111"
-        strokeWidth="3.2"
+        strokeWidth="3.4"
         paintOrder="stroke fill"
         strokeLinejoin="round"
         letterSpacing="1"
@@ -87,7 +95,7 @@ export function GiraeLogo({ height = 34 }) {
 
 export function SearchIcon({ size = 18 }) {
   return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.3" strokeLinecap="round" strokeLinejoin="round">
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
       <circle cx="11" cy="11" r="7" />
       <path d="M21 21l-4.35-4.35" />
     </svg>
@@ -132,7 +140,7 @@ export function VerifiedIcon({ size = 13 }) {
 
 export function ChevronLeftIcon({ size = 18 }) {
   return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
       <path d="M15 18l-6-6 6-6" />
     </svg>
   );
@@ -140,7 +148,7 @@ export function ChevronLeftIcon({ size = 18 }) {
 
 export function ChevronRightIcon({ size = 18 }) {
   return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
       <path d="M9 18l6-6-6-6" />
     </svg>
   );

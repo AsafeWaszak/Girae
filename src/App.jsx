@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import {
+  BoltIcon,
   BookmarkIcon,
   CartIcon,
   CategoryIcon,
@@ -229,14 +230,23 @@ export default function App() {
 
   return (
     <div>
-      {/* ===== CABEÇALHO FIXO EM TODAS AS PÁGINAS ===== */}
-      <header className="site-header">
+      {/* ===== FAIXA FINA DE CONFIANÇA NO TOPO ===== */}
+      <div className="top-trust-bar">
+        <div className="top-trust-inner">
+          <span className="top-trust-bolt">
+            <BoltIcon size={13} />
+          </span>
+          <span>Pesquisamos nas maiores lojas por você</span>
+          <span className="top-trust-sep">•</span>
+          <span className="top-trust-highlight">Curadoria verificada</span>
+        </div>
+      </div>
+
+      {/* ===== CABEÇALHO FIXO AMARELO GIRAE ===== */}
+      <header className={`site-header ${view === 'home' ? 'on-home' : ''}`}>
         <div className="header-inner">
-          <button type="button" className="brand-btn" onClick={goHome}>
-            <GiraeLogo height={34} />
-            <span className="brand-tagline">
-              Nós pesquisamos por você • <strong>Curadoria verificada</strong>
-            </span>
+          <button type="button" className="brand-btn" onClick={goHome} aria-label="Ir para o início da GIRAE">
+            <GiraeLogo height={44} variant="onYellow" />
           </button>
 
           <form className="search-form" onSubmit={handleSearchSubmit}>
@@ -245,7 +255,7 @@ export default function App() {
               className="search-input"
               value={searchInput}
               onChange={(e) => setSearchInput(e.target.value)}
-              placeholder="Qual você iria comprar?"
+              placeholder="O que você quer comprar mais barato?"
               aria-label="Buscar produtos"
             />
             <button type="submit" className="search-submit" aria-label="Pesquisar">
@@ -280,12 +290,11 @@ export default function App() {
       {/* ==================== HOME ==================== */}
       {view === 'home' && (
         <>
-          {/* 1ª Dobra: Palco Amarelo GIRAE com Vitrine Flutuante e Setas Laterais Grandes */}
+          {/* 1ª Dobra: Cards arredondados flutuando sobre o corte amarelo/branco */}
           <section className="hero-stage">
             <div className="hero-stage-inner">
               <div className="hero-heading-row">
                 <h1 className="hero-title">As mais impressionantes da semana</h1>
-                <span className="hero-note">*maior impacto econômico</span>
               </div>
 
               <div className="hero-carousel-shell">
@@ -333,15 +342,20 @@ export default function App() {
             </div>
           </section>
 
-          {/* 2ª Dobra: Aviso limpo + Categorias */}
+          {/* 2ª Dobra: Aviso limpo + Categorias em destaque */}
           <main className="main-container">
             <div className="simple-guide-bar">
               <p>Pesquise na busca acima ou escolha uma categoria abaixo</p>
-              <span>Procurando algo específico? Digite direto na barra "Qual você iria comprar?".</span>
+              <span>Procurando algo específico? Digite direto na barra "O que você quer comprar mais barato?".</span>
             </div>
 
             <section>
-              <h2 className="section-title">Categorias</h2>
+              <div className="categories-header-bar">
+                <span className="categories-accent-bar" />
+                <h2 className="categories-title">Categorias</h2>
+                <span className="categories-header-line" />
+                <span className="categories-subtitle">Explore por departamento</span>
+              </div>
 
               <div className="categories-grid">
                 {CATEGORIES.map((cat) => {
@@ -358,7 +372,7 @@ export default function App() {
                       onClick={() => openCategory(cat.name)}
                     >
                       <div className="category-icon-box">
-                        <CategoryIcon type={cat.icon} size={21} />
+                        <CategoryIcon type={cat.icon} size={22} />
                       </div>
                       <div>
                         <div className="category-name">{cat.name}</div>
