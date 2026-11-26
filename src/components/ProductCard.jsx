@@ -35,7 +35,7 @@ export function RetailPrice({ value, size = 'md' }) {
   );
 }
 
-/* ===== CARD EXCLUSIVO DOS 4 DESTAQUES DA HOME (LIMPO, OVAL E INTERATIVO) ===== */
+/* ===== CARD EXCLUSIVO DOS 4 DESTAQUES DA HOME (OVAL, LIMPO E COM IMPACTO) ===== */
 export function HeroSpotlightCard({
   product,
   inCart,
@@ -119,24 +119,25 @@ export function HeroSpotlightCard({
       <div className="spotlight-prices">
         <div className="spotlight-best-wrap">
           <RetailPrice value={bestStore.price} size="lg" />
-          <span className="store-signature">
-            <span
-              className="store-dot"
-              style={{ background: bestStore.color }}
-              aria-hidden="true"
-            />
-            <span>{bestStore.name}</span>
-            <ArrowUpRightIcon size={13} />
+          <span
+            className="store-tag-solid"
+            style={{ background: bestStore.color, color: bestStore.textColor }}
+          >
+            {bestStore.name}
           </span>
         </div>
 
         {secondStore && (
           <div className="spotlight-compare-line">
-            <span className="store-dot-sm" style={{ background: secondStore.color }} />
+            <span
+              className="spotlight-compare-bar"
+              style={{ background: secondStore.color }}
+              aria-hidden="true"
+            />
             <span className="spotlight-compare-store">{secondStore.name}</span>
             <span className="spotlight-compare-price">{formatBRL(secondStore.price)}</span>
             {diff > 0 && (
-              <span className="retail-diff-text">{formatDiffCompact(diff)}</span>
+              <span className="compare-diff-pill">{formatDiffCompact(diff)}</span>
             )}
           </div>
         )}
@@ -145,7 +146,7 @@ export function HeroSpotlightCard({
   );
 }
 
-/* ===== CARD COMPLETO PARA AS PÁGINAS DE BUSCA E CATEGORIAS ===== */
+/* ===== CARD COMPLETO PARA AS PÁGINAS DE BUSCA E CATEGORIAS (HÍBRIDO + ANIMAÇÃO) ===== */
 export default function ProductCard({
   product,
   inCart,
@@ -182,27 +183,26 @@ export default function ProductCard({
         href={store.url}
         target="_blank"
         rel="noopener noreferrer"
-        className="retail-compare-row"
+        className="hybrid-compare-row"
         onClick={() => onVisitStore(product, store)}
         title={`Ver oferta na ${store.name}`}
       >
-        <span className="retail-compare-store">
+        <span className="hybrid-store-left">
           <span
-            className="store-dot-sm"
-            style={{ background: store.color }}
+            className="store-morph-pill"
+            style={{ background: store.color, color: store.textColor }}
             aria-hidden="true"
-          />
-          <span className="retail-compare-name">{store.name}</span>
+          >
+            <span className="store-morph-code">{store.badge}</span>
+          </span>
+          <span className="hybrid-store-name">{store.name}</span>
         </span>
 
-        <span className="retail-compare-numbers">
-          <span className="retail-compare-val">{formatBRL(store.price)}</span>
+        <span className="hybrid-price-right">
+          <span className="hybrid-price-val">{formatBRL(store.price)}</span>
           {diff > 0 && (
-            <span className="retail-diff-text">{formatDiffCompact(diff)}</span>
+            <span className="compare-diff-pill">{formatDiffCompact(diff)}</span>
           )}
-          <span className="row-hover-arrow" aria-hidden="true">
-            <ArrowUpRightIcon size={12} />
-          </span>
         </span>
       </a>
     );
@@ -292,35 +292,39 @@ export default function ProductCard({
           </button>
         </div>
 
+        {/* Bloco Híbrido: Moldura Pop Retail + Tipografia de Varejo + Animação nas lojas */}
         <div className="price-stack">
           <a
             href={bestStore.url}
             target="_blank"
             rel="noopener noreferrer"
-            className="retail-best-offer"
+            className="hybrid-best-box"
             onClick={() => onVisitStore(product, bestStore)}
             title={`Ir para ${bestStore.name}`}
           >
-            <div className="retail-best-meta">
-              <span className="retail-best-label">Menor preço</span>
-              <span className="store-signature">
-                <span
-                  className="store-dot"
-                  style={{ background: bestStore.color }}
-                  aria-hidden="true"
-                />
-                <span>{bestStore.name}</span>
-                <span className="row-hover-arrow">
-                  <ArrowUpRightIcon size={13} />
-                </span>
+            <div className="hybrid-best-top">
+              <span className="hybrid-best-caption">Menor preço</span>
+              <span
+                className="store-tag-solid"
+                style={{ background: bestStore.color, color: bestStore.textColor }}
+              >
+                {bestStore.name}
+                <ArrowUpRightIcon size={12} />
               </span>
             </div>
             <RetailPrice value={bestStore.price} size="md" />
           </a>
 
-          <div className="retail-compare-list">
+          <div className="hybrid-compare-list">
             {secondStore && renderCompareRow(secondStore)}
-            {showAllStores && extraStores.map((store) => renderCompareRow(store))}
+
+            {extraStores.length > 0 && (
+              <div className={`extra-stores-drawer ${showAllStores ? 'open' : ''}`}>
+                <div className="extra-stores-inner">
+                  {extraStores.map((store) => renderCompareRow(store))}
+                </div>
+              </div>
+            )}
           </div>
 
           {extraStores.length > 0 && (
