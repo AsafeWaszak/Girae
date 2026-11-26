@@ -1009,8 +1009,8 @@ a {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 6px;
-  padding: 6px 8px;
+  gap: 4px;
+  padding: 6px 7px;
   border-radius: 10px;
   background: var(--girae-white);
   border: 1.5px solid var(--girae-border-soft);
@@ -1028,15 +1028,15 @@ a {
 .retail-compare-store {
   display: flex;
   align-items: center;
-  gap: 7px;
+  gap: 5px;
   min-width: 0;
   flex: 1;
 }
 
 /* Barrinha colorida que expande para o lado revelando a sigla no hover */
 .store-morph-pill {
-  width: 5px;
-  height: 20px;
+  width: 4px;
+  height: 19px;
   border-radius: 999px;
   border: 1.2px solid rgba(17, 17, 17, 0.28);
   display: inline-flex;
@@ -1051,7 +1051,7 @@ a {
 
 .store-morph-code {
   font-family: 'Space Grotesk', sans-serif;
-  font-size: 9.5px;
+  font-size: 9px;
   font-weight: 700;
   letter-spacing: 0.02em;
   white-space: nowrap;
@@ -1061,7 +1061,7 @@ a {
 }
 
 .hybrid-compare-row:hover .store-morph-pill {
-  width: 34px;
+  width: 32px;
   border-radius: 6px;
   border-color: var(--girae-black);
 }
@@ -1073,7 +1073,7 @@ a {
 
 .hybrid-store-name,
 .retail-compare-name {
-  font-size: 12px;
+  font-size: 11.5px;
   font-weight: 600;
   color: #3a3a36;
   white-space: nowrap;
@@ -1091,11 +1091,18 @@ a {
 .retail-compare-numbers {
   display: flex;
   align-items: center;
-  gap: 7px;
+  gap: 5px;
   flex-shrink: 0;
 }
 
 .hybrid-price-val,
+.retail-compare-val {
+  font-family: 'Space Grotesk', sans-serif;
+  font-variant-numeric: tabular-nums;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: #4b4b46;
+},
 .retail-compare-val {
   font-family: 'Space Grotesk', sans-serif;
   font-variant-numeric: tabular-nums;
