@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import {
+  ArrowUpRightIcon,
   BoltIcon,
   BookmarkIcon,
   CartIcon,
@@ -9,11 +10,16 @@ import {
   CloseIcon,
   ExternalLinkIcon,
   GiraeLogo,
+  HomeIcon,
   SearchIcon,
   TrashIcon,
   VerifiedIcon,
 } from './components/Icons';
-import ProductCard, { HeroSpotlightCard } from './components/ProductCard';
+import ProductCard, {
+  HeroSpotlightCard,
+  RetailPrice,
+  formatDiffCompact,
+} from './components/ProductCard';
 import {
   CATEGORIES,
   PRODUCTS,
@@ -44,7 +50,7 @@ export default function App() {
   const [savedIds, setSavedIds] = useState(() => loadStorage('girae_saved', []));
   const [visitedLog, setVisitedLog] = useState(() => loadStorage('girae_visited', []));
 
-  const [offerModal, setOfferModal] = useState(null); // { product, imgIndex }
+  const [offerModal, setOfferModal] = useState(null);
 
   useEffect(() => {
     localStorage.setItem('girae_cart', JSON.stringify(cartIds));
@@ -255,19 +261,32 @@ export default function App() {
             <GiraeLogo height={44} variant="onYellow" />
           </button>
 
-          <form className="search-form" onSubmit={handleSearchSubmit}>
-            <input
-              type="text"
-              className="search-input"
-              value={searchInput}
-              onChange={(e) => setSearchInput(e.target.value)}
-              placeholder="O que você quer comprar mais barato?"
-              aria-label="Buscar produtos"
-            />
-            <button type="submit" className="search-submit" aria-label="Pesquisar">
-              <SearchIcon size={19} />
+          {/* Casinha (Início) colada à esquerda da barra de busca */}
+          <div className="header-search-group">
+            <button
+              type="button"
+              className={`pop-btn home-icon-btn ${view === 'home' ? 'active' : ''}`}
+              onClick={goHome}
+              title="Voltar para a página inicial"
+              aria-label="Página inicial"
+            >
+              <HomeIcon size={20} />
             </button>
-          </form>
+
+            <form className="search-form" onSubmit={handleSearchSubmit}>
+              <input
+                type="text"
+                className="search-input"
+                value={searchInput}
+                onChange={(e) => setSearchInput(e.target.value)}
+                placeholder="O que você quer comprar mais barato?"
+                aria-label="Buscar produtos"
+              />
+              <button type="submit" className="search-submit" aria-label="Pesquisar">
+                <SearchIcon size={19} />
+              </button>
+            </form>
+          </div>
 
           <div className="header-actions">
             <button
@@ -296,7 +315,6 @@ export default function App() {
       {/* ==================== HOME ==================== */}
       {view === 'home' && (
         <>
-          {/* 1ª Dobra: 4 Destaques Ovais Flutuantes com 1 imagem limpa */}
           <section className="hero-stage">
             <div className="hero-stage-inner">
               <div className="hero-heading-row">
@@ -346,7 +364,6 @@ export default function App() {
             </div>
           </section>
 
-          {/* 2ª Dobra: Aviso limpo + Categorias */}
           <main className="main-container">
             <div className="simple-guide-bar">
               <p>Pesquise na busca acima ou escolha uma categoria abaixo</p>
@@ -603,11 +620,12 @@ export default function App() {
                           <h3>{product.title}</h3>
                           <div className="list-item-meta">
                             <span className="list-item-price">{formatBRL(best.price)}</span>
-                            <span>Menor preço na <strong>{best.name}</strong></span>
+                            <span className="store-signature">
+                              <span className="store-dot-sm" style={{ background: best.color }} />
+                              {best.name}
+                            </span>
                             {savings > 0 && (
-                              <span className="compare-diff">
-                                -{formatBRL(savings).replace(',00', '')}
-                              </span>
+                              <span className="retail-diff-text">{formatDiffCompact(savings)}</span>
                             )}
                           </div>
                         </div>
@@ -726,7 +744,10 @@ export default function App() {
                           <h3>{product.title}</h3>
                           <div className="list-item-meta">
                             <span className="list-item-price">{formatBRL(best.price)}</span>
-                            <span>Menor preço na <strong>{best.name}</strong></span>
+                            <span className="store-signature">
+                              <span className="store-dot-sm" style={{ background: best.color }} />
+                              {best.name}
+                            </span>
                           </div>
                         </div>
                         <div className="list-item-actions">
@@ -860,52 +881,53 @@ export default function App() {
                     href={modalBest.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="best-price-row"
+                    className="retail-best-offer"
                     onClick={() => handleVisitStore(offerModal.product, modalBest)}
                   >
-                    <div>
-                      <span className="best-price-caption">Menor preço verificado</span>
-                      <span className="best-price-num">{formatBRL(modalBest.price)}</span>
+                    <div className="retail-best-meta">
+                      <span className="retail-best-label">Menor preço verificado</span>
+                      <span className="store-signature">
+                        <span className="store-dot" style={{ background: modalBest.color }} />
+                        <span>{modalBest.name}</span>
+                        <span className="row-hover-arrow">
+                          <ArrowUpRightIcon size={13} />
+                        </span>
+                      </span>
                     </div>
-                    <span
-                      className="store-tag-solid"
-                      style={{ background: modalBest.color, color: modalBest.textColor }}
-                    >
-                      {modalBest.name}
-                    </span>
+                    <RetailPrice value={modalBest.price} size="lg" />
                   </a>
 
-                  {modalOthers.map((store) => {
-                    const diff = store.price - modalBest.price;
-                    return (
-                      <a
-                        key={store.name}
-                        href={store.url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="compare-row"
-                        onClick={() => handleVisitStore(offerModal.product, store)}
-                      >
-                        <div className="compare-left">
-                          <span
-                            className="store-mini-code"
-                            style={{ background: store.color, color: store.textColor }}
-                          >
-                            {store.badge}
+                  <div className="retail-compare-list">
+                    {modalOthers.map((store) => {
+                      const diff = store.price - modalBest.price;
+                      return (
+                        <a
+                          key={store.name}
+                          href={store.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="retail-compare-row"
+                          onClick={() => handleVisitStore(offerModal.product, store)}
+                        >
+                          <span className="retail-compare-store">
+                            <span className="store-dot-sm" style={{ background: store.color }} />
+                            <span className="retail-compare-name">{store.name}</span>
                           </span>
-                          <span className="compare-store-label">{store.name}</span>
-                        </div>
-                        <div className="compare-right">
-                          <span className="compare-price">{formatBRL(store.price)}</span>
-                          {diff > 0 && (
-                            <span className="compare-diff">
-                              -{formatBRL(diff).replace(',00', '')}
+                          <span className="retail-compare-numbers">
+                            <span className="retail-compare-val">{formatBRL(store.price)}</span>
+                            {diff > 0 && (
+                              <span className="retail-diff-text">
+                                {formatDiffCompact(diff)}
+                              </span>
+                            )}
+                            <span className="row-hover-arrow">
+                              <ArrowUpRightIcon size={12} />
                             </span>
-                          )}
-                        </div>
-                      </a>
-                    );
-                  })}
+                          </span>
+                        </a>
+                      );
+                    })}
+                  </div>
 
                   <div className="modal-actions-row">
                     <button

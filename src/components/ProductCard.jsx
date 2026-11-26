@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import {
+  ArrowUpRightIcon,
   BookmarkIcon,
   CartIcon,
   ChevronLeftIcon,
@@ -9,7 +10,38 @@ import {
 } from './Icons';
 import { formatBRL, getSortedStores } from '../data/products';
 
-/* ===== CARD EXCLUSIVO DOS 4 DESTAQUES DA HOME (LIMPO, OVAL E FLUTUANTE) ===== */
+/* Anatomia de preço de varejo real: R$ menor + inteiro em destaque + centavos elevados */
+export function PriceDisplay({ value, size = 'md' }) {
+  const formatted = new Intl.NumberFormat('pt-BR', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(value);
+  const [intPart, decPart] = formatted.split(',');
+
+  return (
+    <span className={`retail-price retail-price--${size}`}>
+      <span className="retail-currency">R$</span>
+      <span className="retail-int">{intPart}</span>
+      <span className="retail-cents">,{decPart}</span>
+    </span>
+  );
+}
+
+/* Indicador limpo de loja: ponto na cor oficial da loja + nome sem siglas artificiais */
+export function StoreNameTag({ store, emphasis = false }) {
+  return (
+    <span className={`store-identity ${emphasis ? 'is-best' : ''}`}>
+      <span
+        className="store-dot"
+        style={{ backgroundColor: store.color }}
+        aria-hidden="true"
+      />
+      <span className="store-name-text">{store.name}</span>
+    </span>
+  );
+}
+
+/* ===== CARD EXCLUSIVO DOS 4 DESTAQUES DA HOME (LIMPO, OVAL E INTERATIVO) ===== */
 export function HeroSpotlightCard({
   product,
   inCart,
@@ -35,9 +67,8 @@ export function HeroSpotlightCard({
           onOpenOffer(product, 0);
         }
       }}
-      title="Clique para ver todas as lojas e comprar"
+      title="Clique para comparar todas as lojas e comprar"
     >
-      {/* Topo: Original discreto à esquerda | Carrinho e Salvos à direita */}
       <div className="spotlight-top-row">
         <div>
           {product.isOriginal && (
@@ -77,7 +108,6 @@ export function HeroSpotlightCard({
         </div>
       </div>
 
-      {/* Palco Oval Amarelo com 1 foto limpa pronta para PNG transparente */}
       <div className="spotlight-visual-stage">
         <div className="spotlight-oval-halo" />
         <img
@@ -88,30 +118,26 @@ export function HeroSpotlightCard({
         />
       </div>
 
-      {/* Título limpo */}
       <h3 className="spotlight-title" title={product.title}>
         {product.title}
       </h3>
 
-      {/* Menor preço + apenas 1 comparação */}
       <div className="spotlight-prices">
-        <div className="spotlight-best-line">
-          <span className="spotlight-best-price">{formatBRL(bestStore.price)}</span>
-          <span
-            className="store-tag-solid"
-            style={{ background: bestStore.color, color: bestStore.textColor }}
-          >
-            {bestStore.name}
-          </span>
+        <div className="spotlight-best-wrap">
+          <PriceDisplay value={bestStore.price} size="xl" />
+          <div className="spotlight-store-sub">
+            <span>na</span>
+            <StoreNameTag store={bestStore} emphasis />
+          </div>
         </div>
 
         {secondStore && (
           <div className="spotlight-compare-line">
             <span className="spotlight-compare-store">
-              {secondStore.name}: {formatBRL(secondStore.price)}
+              {secondStore.name} {formatBRL(secondStore.price)}
             </span>
             {diff > 0 && (
-              <span className="compare-diff">
+              <span className="diff-inline">
                 -{formatBRL(diff).replace(',00', '')}
               </span>
             )}
@@ -159,27 +185,22 @@ export default function ProductCard({
         href={store.url}
         target="_blank"
         rel="noopener noreferrer"
-        className="compare-row"
+        className="compare-line-item"
         onClick={() => onVisitStore(product, store)}
-        title={`Ver na ${store.name}`}
+        title={`Abrir oferta na ${store.name}`}
       >
-        <div className="compare-left">
-          <span
-            className="store-mini-code"
-            style={{ background: store.color, color: store.textColor }}
-          >
-            {store.badge}
-          </span>
-          <span className="compare-store-label">{store.name}</span>
-        </div>
+        <StoreNameTag store={store} />
 
-        <div className="compare-right">
-          <span className="compare-price">{formatBRL(store.price)}</span>
+        <div className="compare-line-right">
+          <span className="compare-line-price">{formatBRL(store.price)}</span>
           {diff > 0 && (
-            <span className="compare-diff" title="Diferença em relação ao menor preço">
+            <span className="diff-inline" title="Diferença para o menor preço">
               -{formatBRL(diff).replace(',00', '')}
             </span>
           )}
+          <span className="hover-arrow">
+            <ArrowUpRightIcon size={13} />
+          </span>
         </div>
       </a>
     );
@@ -269,30 +290,35 @@ export default function ProductCard({
           </button>
         </div>
 
+        {/* Bloco editorial de preços sem "cara de corretora/IA" */}
         <div className="price-stack">
           <a
             href={bestStore.url}
             target="_blank"
             rel="noopener noreferrer"
-            className="best-price-row"
+            className="best-price-link"
             onClick={() => onVisitStore(product, bestStore)}
             title={`Ir para ${bestStore.name}`}
           >
-            <div>
-              <span className="best-price-caption">Menor preço</span>
-              <span className="best-price-num">{formatBRL(bestStore.price)}</span>
+            <div className="best-price-meta-top">
+              <span className="best-price-kicker">Menor preço</span>
+              <StoreNameTag store={bestStore} emphasis />
             </div>
-            <span
-              className="store-tag-solid"
-              style={{ background: bestStore.color, color: bestStore.textColor }}
-            >
-              {bestStore.name}
-            </span>
+
+            <div className="best-price-main-line">
+              <PriceDisplay value={bestStore.price} size="lg" />
+              <span className="best-price-go">
+                <ArrowUpRightIcon size={16} />
+              </span>
+            </div>
           </a>
 
-          {secondStore && renderCompareRow(secondStore)}
-
-          {showAllStores && extraStores.map((store) => renderCompareRow(store))}
+          {secondStore && (
+            <div className="compare-lines-group">
+              {renderCompareRow(secondStore)}
+              {showAllStores && extraStores.map((store) => renderCompareRow(store))}
+            </div>
+          )}
 
           {extraStores.length > 0 && (
             <button
