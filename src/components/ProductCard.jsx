@@ -9,6 +9,120 @@ import {
 } from './Icons';
 import { formatBRL, getSortedStores } from '../data/products';
 
+/* ===== CARD EXCLUSIVO DOS 4 DESTAQUES DA HOME (LIMPO, OVAL E FLUTUANTE) ===== */
+export function HeroSpotlightCard({
+  product,
+  inCart,
+  isSaved,
+  onToggleCart,
+  onToggleSave,
+  onOpenOffer,
+}) {
+  const stores = getSortedStores(product);
+  const bestStore = stores[0];
+  const secondStore = stores[1];
+  const diff = secondStore ? secondStore.price - bestStore.price : 0;
+
+  return (
+    <article
+      className="spotlight-card"
+      onClick={() => onOpenOffer(product, 0)}
+      role="button"
+      tabIndex={0}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          onOpenOffer(product, 0);
+        }
+      }}
+      title="Clique para ver todas as lojas e comprar"
+    >
+      {/* Topo: Original discreto à esquerda | Carrinho e Salvos à direita */}
+      <div className="spotlight-top-row">
+        <div>
+          {product.isOriginal && (
+            <span className="spotlight-original">
+              <VerifiedIcon size={13} />
+              Original
+            </span>
+          )}
+        </div>
+
+        <div className="spotlight-top-actions">
+          <button
+            type="button"
+            className={`spotlight-icon-btn ${inCart ? 'active-cart' : ''}`}
+            onClick={(e) => {
+              e.stopPropagation();
+              onToggleCart(product.id);
+            }}
+            title={inCart ? 'Remover do carrinho' : 'Adicionar ao carrinho'}
+            aria-label="Adicionar ao carrinho"
+          >
+            <CartIcon size={15} />
+          </button>
+
+          <button
+            type="button"
+            className={`spotlight-icon-btn ${isSaved ? 'active-save' : ''}`}
+            onClick={(e) => {
+              e.stopPropagation();
+              onToggleSave(product.id);
+            }}
+            title={isSaved ? 'Remover dos salvos' : 'Salvar oferta'}
+            aria-label="Salvar oferta"
+          >
+            <BookmarkIcon size={15} filled={isSaved} />
+          </button>
+        </div>
+      </div>
+
+      {/* Palco Oval Amarelo com 1 foto limpa pronta para PNG transparente */}
+      <div className="spotlight-visual-stage">
+        <div className="spotlight-oval-halo" />
+        <img
+          src={product.images[0]}
+          alt={product.title}
+          className="spotlight-product-img"
+          loading="lazy"
+        />
+      </div>
+
+      {/* Título limpo */}
+      <h3 className="spotlight-title" title={product.title}>
+        {product.title}
+      </h3>
+
+      {/* Menor preço + apenas 1 comparação */}
+      <div className="spotlight-prices">
+        <div className="spotlight-best-line">
+          <span className="spotlight-best-price">{formatBRL(bestStore.price)}</span>
+          <span
+            className="store-tag-solid"
+            style={{ background: bestStore.color, color: bestStore.textColor }}
+          >
+            {bestStore.name}
+          </span>
+        </div>
+
+        {secondStore && (
+          <div className="spotlight-compare-line">
+            <span className="spotlight-compare-store">
+              {secondStore.name}: {formatBRL(secondStore.price)}
+            </span>
+            {diff > 0 && (
+              <span className="compare-diff">
+                -{formatBRL(diff).replace(',00', '')}
+              </span>
+            )}
+          </div>
+        )}
+      </div>
+    </article>
+  );
+}
+
+/* ===== CARD COMPLETO PARA AS PÁGINAS DE BUSCA E CATEGORIAS ===== */
 export default function ProductCard({
   product,
   inCart,
@@ -17,7 +131,6 @@ export default function ProductCard({
   onToggleSave,
   onVisitStore,
   onOpenZoom,
-  isHero = false,
 }) {
   const [imgIndex, setImgIndex] = useState(0);
   const [showAllStores, setShowAllStores] = useState(false);
@@ -73,15 +186,13 @@ export default function ProductCard({
   };
 
   return (
-    <article className={`product-card ${isHero ? 'hero-card' : ''}`}>
-      {/* 1. Título limpo */}
+    <article className="product-card">
       <div className="card-title-bar">
         <h3 className="card-title" title={product.title}>
           {product.title}
         </h3>
       </div>
 
-      {/* 2. Foto CRUA sem tarjas (apenas Original discreto no canto se aplicável) */}
       <div
         className="card-media-box"
         onClick={() => onOpenZoom(product, imgIndex)}
@@ -123,9 +234,7 @@ export default function ProductCard({
         )}
       </div>
 
-      {/* 3. Corpo do anúncio */}
       <div className="card-body">
-        {/* Barra: [Carrinho] | • • • | [Salvos] */}
         <div className="card-media-toolbar">
           <button
             type="button"
@@ -160,7 +269,6 @@ export default function ProductCard({
           </button>
         </div>
 
-        {/* Comparação limpa: Menor preço + 2º menor preço + Suspensório Mostrar mais */}
         <div className="price-stack">
           <a
             href={bestStore.url}
@@ -199,7 +307,6 @@ export default function ProductCard({
           )}
         </div>
 
-        {/* Rodapé: [Carrinho] + [COMPRAR] */}
         <div className="card-footer-actions">
           <button
             type="button"

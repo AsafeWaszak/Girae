@@ -11,8 +11,9 @@ import {
   GiraeLogo,
   SearchIcon,
   TrashIcon,
+  VerifiedIcon,
 } from './components/Icons';
-import ProductCard from './components/ProductCard';
+import ProductCard, { HeroSpotlightCard } from './components/ProductCard';
 import {
   CATEGORIES,
   PRODUCTS,
@@ -43,7 +44,7 @@ export default function App() {
   const [savedIds, setSavedIds] = useState(() => loadStorage('girae_saved', []));
   const [visitedLog, setVisitedLog] = useState(() => loadStorage('girae_visited', []));
 
-  const [zoomState, setZoomState] = useState(null);
+  const [offerModal, setOfferModal] = useState(null); // { product, imgIndex }
 
   useEffect(() => {
     localStorage.setItem('girae_cart', JSON.stringify(cartIds));
@@ -245,7 +246,12 @@ export default function App() {
       {/* ===== CABEÇALHO FIXO AMARELO GIRAE ===== */}
       <header className={`site-header ${view === 'home' ? 'on-home' : ''}`}>
         <div className="header-inner">
-          <button type="button" className="brand-btn" onClick={goHome} aria-label="Ir para o início da GIRAE">
+          <button
+            type="button"
+            className="brand-btn"
+            onClick={goHome}
+            aria-label="Ir para o início da GIRAE"
+          >
             <GiraeLogo height={44} variant="onYellow" />
           </button>
 
@@ -290,7 +296,7 @@ export default function App() {
       {/* ==================== HOME ==================== */}
       {view === 'home' && (
         <>
-          {/* 1ª Dobra: Cards arredondados flutuando sobre o corte amarelo/branco */}
+          {/* 1ª Dobra: 4 Destaques Ovais Flutuantes com 1 imagem limpa */}
           <section className="hero-stage">
             <div className="hero-stage-inner">
               <div className="hero-heading-row">
@@ -314,16 +320,14 @@ export default function App() {
 
                 <div className="product-grid-4">
                   {visibleFeatured.map((product) => (
-                    <ProductCard
+                    <HeroSpotlightCard
                       key={product.id}
                       product={product}
-                      isHero
                       inCart={cartIds.includes(product.id)}
                       isSaved={savedIds.includes(product.id)}
                       onToggleCart={toggleCart}
                       onToggleSave={toggleSave}
-                      onVisitStore={handleVisitStore}
-                      onOpenZoom={(p, idx) => setZoomState({ product: p, imgIndex: idx })}
+                      onOpenOffer={(p, idx) => setOfferModal({ product: p, imgIndex: idx })}
                     />
                   ))}
                 </div>
@@ -342,7 +346,7 @@ export default function App() {
             </div>
           </section>
 
-          {/* 2ª Dobra: Aviso limpo + Categorias em destaque */}
+          {/* 2ª Dobra: Aviso limpo + Categorias */}
           <main className="main-container">
             <div className="simple-guide-bar">
               <p>Pesquise na busca acima ou escolha uma categoria abaixo</p>
@@ -354,7 +358,6 @@ export default function App() {
                 <span className="categories-accent-bar" />
                 <h2 className="categories-title">Categorias</h2>
                 <span className="categories-header-line" />
-                <span className="categories-subtitle">Explore por departamento</span>
               </div>
 
               <div className="categories-grid">
@@ -537,7 +540,7 @@ export default function App() {
                         onToggleCart={toggleCart}
                         onToggleSave={toggleSave}
                         onVisitStore={handleVisitStore}
-                        onOpenZoom={(p, idx) => setZoomState({ product: p, imgIndex: idx })}
+                        onOpenZoom={(p, idx) => setOfferModal({ product: p, imgIndex: idx })}
                       />
                     ))}
                   </div>
@@ -602,7 +605,9 @@ export default function App() {
                             <span className="list-item-price">{formatBRL(best.price)}</span>
                             <span>Menor preço na <strong>{best.name}</strong></span>
                             {savings > 0 && (
-                              <span className="compare-diff">-{formatBRL(savings).replace(',00', '')}</span>
+                              <span className="compare-diff">
+                                -{formatBRL(savings).replace(',00', '')}
+                              </span>
                             )}
                           </div>
                         </div>
@@ -763,86 +768,181 @@ export default function App() {
         </main>
       )}
 
-      {/* ===== MODAL DE ZOOM RÁPIDO ===== */}
-      {zoomState && (
-        <div className="modal-backdrop" onClick={() => setZoomState(null)}>
-          <div className="modal-box" onClick={(e) => e.stopPropagation()}>
-            <div className="modal-header">
-              <h3 className="card-title">{zoomState.product.title}</h3>
-              <button
-                type="button"
-                className="mini-pop-icon"
-                onClick={() => setZoomState(null)}
-                aria-label="Fechar zoom"
-              >
-                <CloseIcon size={18} />
-              </button>
-            </div>
+      {/* ===== MODAL COMPLETO DE OFERTA (CARROSSEL + 5 LOJAS + COMPRAR) ===== */}
+      {offerModal && (() => {
+        const modalStores = getSortedStores(offerModal.product);
+        const modalBest = modalStores[0];
+        const modalOthers = modalStores.slice(1);
+        const modalInCart = cartIds.includes(offerModal.product.id);
+        const modalSaved = savedIds.includes(offerModal.product.id);
 
-            <div className="modal-img-wrap">
-              <img
-                src={zoomState.product.images[zoomState.imgIndex]}
-                alt={zoomState.product.title}
-              />
-              {zoomState.product.images.length > 1 && (
-                <>
-                  <button
-                    type="button"
-                    className="media-nav-btn prev"
-                    onClick={() =>
-                      setZoomState((prev) => ({
-                        ...prev,
-                        imgIndex:
-                          (prev.imgIndex - 1 + prev.product.images.length) %
-                          prev.product.images.length,
-                      }))
-                    }
-                  >
-                    <ChevronLeftIcon size={16} />
-                  </button>
-                  <button
-                    type="button"
-                    className="media-nav-btn next"
-                    onClick={() =>
-                      setZoomState((prev) => ({
-                        ...prev,
-                        imgIndex: (prev.imgIndex + 1) % prev.product.images.length,
-                      }))
-                    }
-                  >
-                    <ChevronRightIcon size={16} />
-                  </button>
-                </>
-              )}
-            </div>
-
-            <div className="modal-footer">
-              <div>
-                <span className="best-price-caption">Menor preço verificado</span>
-                <span className="best-price-num">
-                  {formatBRL(getSortedStores(zoomState.product)[0].price)}
-                </span>
+        return (
+          <div className="modal-backdrop" onClick={() => setOfferModal(null)}>
+            <div className="modal-box" onClick={(e) => e.stopPropagation()}>
+              <div className="modal-header">
+                <div>
+                  {offerModal.product.isOriginal && (
+                    <span className="spotlight-original" style={{ marginBottom: 6 }}>
+                      <VerifiedIcon size={13} />
+                      Produto Original
+                    </span>
+                  )}
+                  <h3 className="modal-title">{offerModal.product.title}</h3>
+                </div>
+                <button
+                  type="button"
+                  className="mini-pop-icon"
+                  onClick={() => setOfferModal(null)}
+                  aria-label="Fechar"
+                >
+                  <CloseIcon size={18} />
+                </button>
               </div>
-              <a
-                href={getSortedStores(zoomState.product)[0].url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="pop-btn card-buy-btn"
-                style={{ padding: '0 22px' }}
-                onClick={() =>
-                  handleVisitStore(
-                    zoomState.product,
-                    getSortedStores(zoomState.product)[0]
-                  )
-                }
-              >
-                Ir para {getSortedStores(zoomState.product)[0].name}
-                <ExternalLinkIcon size={15} />
-              </a>
+
+              <div className="modal-body-grid">
+                <div>
+                  <div className="modal-img-wrap">
+                    <img
+                      src={offerModal.product.images[offerModal.imgIndex]}
+                      alt={offerModal.product.title}
+                    />
+                    {offerModal.product.images.length > 1 && (
+                      <>
+                        <button
+                          type="button"
+                          className="media-nav-btn prev"
+                          onClick={() =>
+                            setOfferModal((prev) => ({
+                              ...prev,
+                              imgIndex:
+                                (prev.imgIndex - 1 + prev.product.images.length) %
+                                prev.product.images.length,
+                            }))
+                          }
+                        >
+                          <ChevronLeftIcon size={16} />
+                        </button>
+                        <button
+                          type="button"
+                          className="media-nav-btn next"
+                          onClick={() =>
+                            setOfferModal((prev) => ({
+                              ...prev,
+                              imgIndex: (prev.imgIndex + 1) % prev.product.images.length,
+                            }))
+                          }
+                        >
+                          <ChevronRightIcon size={16} />
+                        </button>
+                      </>
+                    )}
+                  </div>
+
+                  {offerModal.product.images.length > 1 && (
+                    <div className="dots-row" style={{ justifyContent: 'center' }}>
+                      {offerModal.product.images.map((_, idx) => (
+                        <button
+                          key={idx}
+                          type="button"
+                          className={`dot-btn ${idx === offerModal.imgIndex ? 'active' : ''}`}
+                          onClick={() =>
+                            setOfferModal((prev) => ({ ...prev, imgIndex: idx }))
+                          }
+                          aria-label={`Ver imagem ${idx + 1}`}
+                        />
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                <div className="modal-compare-col">
+                  <a
+                    href={modalBest.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="best-price-row"
+                    onClick={() => handleVisitStore(offerModal.product, modalBest)}
+                  >
+                    <div>
+                      <span className="best-price-caption">Menor preço verificado</span>
+                      <span className="best-price-num">{formatBRL(modalBest.price)}</span>
+                    </div>
+                    <span
+                      className="store-tag-solid"
+                      style={{ background: modalBest.color, color: modalBest.textColor }}
+                    >
+                      {modalBest.name}
+                    </span>
+                  </a>
+
+                  {modalOthers.map((store) => {
+                    const diff = store.price - modalBest.price;
+                    return (
+                      <a
+                        key={store.name}
+                        href={store.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="compare-row"
+                        onClick={() => handleVisitStore(offerModal.product, store)}
+                      >
+                        <div className="compare-left">
+                          <span
+                            className="store-mini-code"
+                            style={{ background: store.color, color: store.textColor }}
+                          >
+                            {store.badge}
+                          </span>
+                          <span className="compare-store-label">{store.name}</span>
+                        </div>
+                        <div className="compare-right">
+                          <span className="compare-price">{formatBRL(store.price)}</span>
+                          {diff > 0 && (
+                            <span className="compare-diff">
+                              -{formatBRL(diff).replace(',00', '')}
+                            </span>
+                          )}
+                        </div>
+                      </a>
+                    );
+                  })}
+
+                  <div className="modal-actions-row">
+                    <button
+                      type="button"
+                      className={`pop-btn card-cart-btn ${modalInCart ? 'active' : ''}`}
+                      onClick={() => toggleCart(offerModal.product.id)}
+                      title={modalInCart ? 'Remover do carrinho' : 'Guardar no carrinho'}
+                    >
+                      <CartIcon size={18} />
+                    </button>
+
+                    <button
+                      type="button"
+                      className={`pop-btn card-cart-btn ${modalSaved ? 'active' : ''}`}
+                      onClick={() => toggleSave(offerModal.product.id)}
+                      title={modalSaved ? 'Remover dos salvos' : 'Salvar oferta'}
+                    >
+                      <BookmarkIcon size={18} filled={modalSaved} />
+                    </button>
+
+                    <a
+                      href={modalBest.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="pop-btn card-buy-btn"
+                      onClick={() => handleVisitStore(offerModal.product, modalBest)}
+                    >
+                      Comprar na {modalBest.name}
+                      <ExternalLinkIcon size={14} />
+                    </a>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
-        </div>
-      )}
+        );
+      })()}
     </div>
   );
 }
