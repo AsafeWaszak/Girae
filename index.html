@@ -1,93 +1,14 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Girae - Radar de Ofertas</title>
-  <style>
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
-
-    body {
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-family: "Segoe UI", system-ui, sans-serif;
-      background: linear-gradient(160deg, #0f172a 0%, #1e3a5f 55%, #0ea5e9 100%);
-      color: #f8fafc;
-      padding: 24px;
-    }
-
-    main {
-      width: min(520px, 100%);
-      text-align: center;
-      background: rgba(15, 23, 42, 0.55);
-      border: 1px solid rgba(255, 255, 255, 0.12);
-      border-radius: 20px;
-      padding: 48px 32px;
-      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.35);
-      backdrop-filter: blur(8px);
-    }
-
-    h1 {
-      font-size: clamp(2rem, 5vw, 2.8rem);
-      letter-spacing: -0.03em;
-      margin-bottom: 12px;
-    }
-
-    h1 span {
-      color: #38bdf8;
-    }
-
-    p {
-      font-size: 1.1rem;
-      line-height: 1.5;
-      color: #cbd5e1;
-      margin-bottom: 28px;
-    }
-
-    button {
-      border: none;
-      border-radius: 999px;
-      background: #38bdf8;
-      color: #0f172a;
-      font-size: 1rem;
-      font-weight: 700;
-      padding: 14px 32px;
-      cursor: pointer;
-      transition: transform 0.15s ease, background 0.15s ease;
-    }
-
-    button:hover {
-      background: #7dd3fc;
-      transform: translateY(-1px);
-    }
-
-    #mensagem {
-      min-height: 1.5em;
-      margin-top: 22px;
-      font-weight: 600;
-      color: #a7f3d0;
-    }
-  </style>
-</head>
-<body>
-  <main>
-    <h1>Girae <span>Radar de Ofertas</span></h1>
-    <p>Encontre as melhores promoções em um só lugar, de forma simples e rápida.</p>
-    <button type="button" id="ver-ofertas">Ver Ofertas</button>
-    <p id="mensagem" aria-live="polite"></p>
-  </main>
-
-  <script>
-    document.getElementById("ver-ofertas").addEventListener("click", function () {
-      document.getElementById("mensagem").textContent =
-        "Ofertas encontradas! Em breve você verá as melhores promoções aqui.";
-    });
-  </script>
-</body>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="theme-color" content="#f8fafc" />
+    <title>Girae — Radar de Ofertas</title>
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
 </html>
