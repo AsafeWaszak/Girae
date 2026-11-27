@@ -36,6 +36,7 @@ import {
   getMaxSavings,
   getSortedStores,
 } from './data/products';
+import { KEEP_DEMO_PRODUCTS, fetchSheetProducts } from './data/sheetCatalog';
 
 function loadStorage(key, fallback) {
   try {
@@ -55,19 +56,36 @@ export default function App() {
   const [sortBy, setSortBy] = useState('impressive');
   const [carouselOffset, setCarouselOffset] = useState(0);
 
+  const [allProducts, setAllProducts] = useState(PRODUCTS);
+
   const [cartIds, setCartIds] = useState(() => loadStorage('girae_cart', []));
   const [savedIds, setSavedIds] = useState(() => loadStorage('girae_saved', []));
   const [visitedLog, setVisitedLog] = useState(() => loadStorage('girae_visited', []));
   const [user, setUser] = useState(() => loadStorage('girae_user', null));
 
   const [offerModal, setOfferModal] = useState(null);
-  const [legalTab, setLegalTab] = useState(null); // null | 'termos' | 'afiliados' | 'privacidade'
+  const [legalTab, setLegalTab] = useState(null);
   const [loginModalOpen, setLoginModalOpen] = useState(false);
   const [loginInitialMode, setLoginInitialMode] = useState('login');
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [accountMenuOpen, setAccountMenuOpen] = useState(false);
 
   const accountMenuRef = useRef(null);
+
+  useEffect(() => {
+    let active = true;
+    fetchSheetProducts()
+      .then((sheetItems) => {
+        if (!active || sheetItems.length === 0) return;
+        setAllProducts(KEEP_DEMO_PRODUCTS ? [...sheetItems, ...PRODUCTS] : sheetItems);
+      })
+      .catch((err) => {
+        console.warn('GIRAE: erro ao ler planilha ao vivo, mantendo catálogo local.', err);
+      });
+    return () => {
+      active = false;
+    };
+  }, []);
 
   useEffect(() => {
     localStorage.setItem('girae_cart', JSON.stringify(cartIds));
@@ -128,11 +146,29 @@ export default function App() {
     setAccountMenuOpen(false);
   };
 
+  const allCategories = useMemo(() => {
+    const existing = new Set(CATEGORIES.map((c) => c.name));
+    const extras = [];
+
+    allProducts.forEach((p) => {
+      if (p.category && !existing.has(p.category)) {
+        existing.add(p.category);
+        extras.push({
+          name: p.category,
+          icon: 'bolt',
+          description: 'Ofertas comparadas',
+        });
+      }
+    });
+
+    return [...extras, ...CATEGORIES];
+  }, [allProducts]);
+
   const featuredProducts = useMemo(() => {
-    return PRODUCTS.filter((p) => p.featuredWeek).sort(
-      (a, b) => b.impactScore - a.impactScore
-    );
-  }, []);
+    return allProducts
+      .filter((p) => p.featuredWeek)
+      .sort((a, b) => b.impactScore - a.impactScore);
+  }, [allProducts]);
 
   const visibleFeatured = useMemo(() => {
     if (featuredProducts.length <= 4) return featuredProducts;
@@ -221,7 +257,7 @@ export default function App() {
   const filteredProducts = useMemo(() => {
     const q = activeQuery.toLowerCase();
 
-    const list = PRODUCTS.filter((product) => {
+    const list = allProducts.filter((product) => {
       if (selectedCategory && selectedCategory !== 'Ofertas Relâmpago') {
         if (product.category !== selectedCategory) return false;
       }
@@ -262,7 +298,7 @@ export default function App() {
     }
 
     return sorted;
-  }, [activeQuery, selectedCategory, selectedNiches, sortBy]);
+  }, [allProducts, activeQuery, selectedCategory, selectedNiches, sortBy]);
 
   const availableNextNiches = useMemo(() => {
     if (!selectedCategory || selectedCategory === 'Ofertas Relâmpago') return [];
@@ -285,13 +321,13 @@ export default function App() {
   }, [filteredProducts, selectedCategory]);
 
   const cartProducts = useMemo(
-    () => cartIds.map((id) => PRODUCTS.find((p) => p.id === id)).filter(Boolean),
-    [cartIds]
+    () => cartIds.map((id) => allProducts.find((p) => p.id === id)).filter(Boolean),
+    [allProducts, cartIds]
   );
 
   const savedProducts = useMemo(
-    () => savedIds.map((id) => PRODUCTS.find((p) => p.id === id)).filter(Boolean),
-    [savedIds]
+    () => savedIds.map((id) => allProducts.find((p) => p.id === id)).filter(Boolean),
+    [allProducts, savedIds]
   );
 
   const cartTotals = useMemo(() => {
@@ -616,11 +652,11 @@ export default function App() {
                 </div>
 
                 <div className="categories-grid">
-                  {CATEGORIES.map((cat) => {
+                  {allCategories.map((cat) => {
                     const count =
                       cat.name === 'Ofertas Relâmpago'
-                        ? PRODUCTS.length
-                        : PRODUCTS.filter((p) => p.category === cat.name).length;
+                        ? allProducts.length
+                        : allProducts.filter((p) => p.category === cat.name).length;
 
                     return (
                       <button
@@ -911,7 +947,7 @@ export default function App() {
 
                     <div className="vertical-list-card">
                       {visitedLog.map((entry) => {
-                        const product = PRODUCTS.find((p) => p.id === entry.productId);
+                        const product = allProducts.find((p) => p.id === entry.productId);
                         if (!product) return null;
                         return (
                           <div key={entry.productId} className="list-item-row">
