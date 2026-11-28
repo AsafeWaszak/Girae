@@ -2945,4 +2945,88 @@ a {
     justify-content: center;
     line-height: 1;
   }
+  /* --- AJUSTE FINO: DESESTICAR OS 2 CARDS DA HOME NO CELULAR --- */
+  .hero-carousel-shell {
+    position: relative !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+    gap: 0 !important;
+  }
+
+  .hero-carousel-shell .product-grid-4 {
+    width: 100% !important;
+    gap: 8px !important;
+  }
+
+  /* Solta as setinhas nas bordas para os cards ganharem largura */
+  .hero-side-arrow {
+    position: absolute !important;
+    top: 118px !important;
+    width: 28px !important;
+    height: 28px !important;
+    z-index: 6 !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.16) !important;
+  }
+
+  .hero-side-arrow:first-of-type {
+    left: -6px !important;
+  }
+
+  .hero-side-arrow:last-of-type {
+    right: -6px !important;
+  }
+
+  /* Compacta a altura da área da foto e desestica o oval amarelo */
+  .hero-carousel-shell .product-grid-4 > * {
+    padding: 10px 8px !important;
+    gap: 6px !important;
+  }
+
+  .hero-carousel-shell .product-grid-4 div:has(> img) {
+    height: 106px !important;
+    min-height: 0 !important;
+    max-height: 106px !important;
+    margin: 4px 0 !important;
+  }
+
+  .hero-carousel-shell .product-grid-4 div:has(> img) > div {
+    height: 90px !important;
+    max-height: 90px !important;
+    width: 120px !important;
+    max-width: 92% !important;
+  }
+
+  .hero-carousel-shell .product-grid-4 img {
+    max-height: 94px !important;
+    max-width: 90% !important;
+    object-fit: contain !important;
+  }
+
+  /* Faz o selo Original + Carrinho + Salvar caberem juntos no topo do card */
+  .hero-carousel-shell .product-grid-4 > * > div:first-child {
+    gap: 4px !important;
+  }
+
+  .hero-carousel-shell .product-grid-4 > * > div:first-child button {
+    width: 28px !important;
+    height: 28px !important;
+    min-width: 28px !important;
+    padding: 0 !important;
+  }
+
+  .hero-carousel-shell .product-grid-4 > * > div:first-child span {
+    font-size: 10px !important;
+    padding: 2px 6px !important;
+  }
+
+  /* Elimina a 3ª linha cortada pela metade no título */
+  .product-grid-4 h3,
+  .product-grid-4 h4 {
+    min-height: 0 !important;
+    height: auto !important;
+    max-height: 2.6em !important;
+    font-size: 12px !important;
+    line-height: 1.25 !important;
+    margin: 4px 0 !important;
+  }
 }
