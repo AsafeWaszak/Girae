@@ -147,21 +147,24 @@ export default function App() {
   };
 
   const allCategories = useMemo(() => {
-    const existing = new Set(CATEGORIES.map((c) => c.name));
+    const activeNames = new Set(
+      allProducts.map((p) => p.category).filter(Boolean)
+    );
+    const base = CATEGORIES.filter((c) => activeNames.has(c.name));
+    const baseNames = new Set(base.map((c) => c.name));
     const extras = [];
 
-    allProducts.forEach((p) => {
-      if (p.category && !existing.has(p.category)) {
-        existing.add(p.category);
+    activeNames.forEach((catName) => {
+      if (!baseNames.has(catName)) {
         extras.push({
-          name: p.category,
+          name: catName,
           icon: 'bolt',
           description: 'Ofertas comparadas',
         });
       }
     });
 
-    return [...extras, ...CATEGORIES];
+    return [...base, ...extras];
   }, [allProducts]);
 
   const featuredProducts = useMemo(() => {
@@ -405,7 +408,27 @@ export default function App() {
             </form>
           </div>
 
-          <div className="header-actions">
+          <div
+  className="header-actions"
+  style={{
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'flex-end',
+    gap: '4px',
+  }}
+>
+  <span
+    style={{
+      fontSize: '12px',
+      fontWeight: 600,
+      color: '#111827',
+      whiteSpace: 'nowrap',
+      lineHeight: '1.2',
+    }}
+  >
+    Sem conta, sem senha: seus achados ficam salvos automaticamente neste aparelho
+  </span>
+  <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
             <button
               type="button"
               className={`pop-btn header-nav-btn ${view === 'cart' ? 'active' : ''}`}
@@ -431,9 +454,9 @@ export default function App() {
               <span className="nav-label">Salvos</span>
               {savedIds.length > 0 && <span className="nav-badge">{savedIds.length}</span>}
             </button>
-
+            </div>
             {/* Rostinho / Conta ao lado de Salvos com menu suspenso */}
-            <div className="account-menu-wrap" ref={accountMenuRef}>
+            <div className="account-menu-wrap" style={{ display: 'none' }} ref={accountMenuRef}>
               {!user ? (
                 <button
                   type="button"
@@ -868,20 +891,7 @@ export default function App() {
                     </div>
                   </div>
                 )}
-<div
-  style={{
-    backgroundColor: '#f8f9fa',
-    border: '1px solid #e5e7eb',
-    borderRadius: '10px',
-    padding: '10px 14px',
-    marginBottom: '16px',
-    fontSize: '13px',
-    color: '#4b5563',
-    lineHeight: '1.4',
-  }}
->
-  Sem conta, sem senha: seus achados ficam salvos automaticamente neste aparelho
-</div>
+
                 {cartProducts.length === 0 ? (
                   <div className="empty-state">
                     <h3>Seu carrinho está vazio</h3>
