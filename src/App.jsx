@@ -672,6 +672,30 @@ export default function App() {
                   <span className="categories-accent-bar" />
                   <h2 className="categories-title">Categorias</h2>
                   <span className="categories-header-line" />
+                  <button
+              type="button"
+              onClick={() => {
+                setSelectedCategory(null);
+                setSelectedNiches([]);
+                setActiveQuery('');
+                setSearchInput('');
+                setView('search');
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+              }}
+              style={{
+                background: 'transparent',
+                border: 'none',
+                padding: '4px 0',
+                fontSize: '13px',
+                fontWeight: 600,
+                color: '#4b5563',
+                cursor: 'pointer',
+                whiteSpace: 'nowrap',
+                flexShrink: 0,
+              }}
+            >
+              Todos os Produtos →
+            </button>
                 </div>
 
                 <div className="categories-grid">
