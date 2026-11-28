@@ -868,7 +868,20 @@ export default function App() {
                     </div>
                   </div>
                 )}
-
+<div
+  style={{
+    backgroundColor: '#f8f9fa',
+    border: '1px solid #e5e7eb',
+    borderRadius: '10px',
+    padding: '10px 14px',
+    marginBottom: '16px',
+    fontSize: '13px',
+    color: '#4b5563',
+    lineHeight: '1.4',
+  }}
+>
+  Sem conta, sem senha: seus achados ficam salvos automaticamente neste aparelho
+</div>
                 {cartProducts.length === 0 ? (
                   <div className="empty-state">
                     <h3>Seu carrinho está vazio</h3>
