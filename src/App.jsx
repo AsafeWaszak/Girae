@@ -48,6 +48,7 @@ function loadStorage(key, fallback) {
 }
 
 export default function App() {
+  const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
   const [view, setView] = useState('home'); // 'home' | 'search' | 'cart' | 'saved'
   const [searchInput, setSearchInput] = useState('');
   const [activeQuery, setActiveQuery] = useState('');
@@ -735,7 +736,15 @@ export default function App() {
           <main className="main-container">
             {view === 'search' && (
               <div className="catalog-layout">
-                <aside className="sidebar-panel">
+<aside className={`sidebar-panel ${mobileFiltersOpen ? 'mobile-open' : ''}`}>
+              <button
+                type="button"
+                className="mobile-filter-trigger"
+                onClick={() => setMobileFiltersOpen((prev) => !prev)}
+              >
+                <span>Filtros e ordenar</span>
+                <span>{mobileFiltersOpen ? 'Fechar ▲' : 'Abrir ▼'}</span>
+              </button>
                   <div className="breadcrumb-row">
                     <button type="button" className="breadcrumb-link" onClick={goHome}>
                       Início
@@ -1326,6 +1335,93 @@ export default function App() {
         onChangeTab={(tab) => setLegalTab(tab)}
         onClose={() => setLegalTab(null)}
       />
+      <nav className="mobile-app-nav" aria-label="Navegação do aplicativo">
+        <button
+          type="button"
+          className={`mobile-app-nav-item ${view === 'home' ? 'active' : ''}`}
+          onClick={() => {
+            setView('home');
+            setMobileFiltersOpen(false);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          }}
+        >
+          <HomeIcon size={20} />
+          <span>Início</span>
+        </button>
+
+        <button
+          type="button"
+          className={`mobile-app-nav-item ${view === 'search' ? 'active' : ''}`}
+          onClick={() => {
+            setMobileFiltersOpen(false);
+            if (view !== 'home') {
+              setView('home');
+              setTimeout(() => {
+                document
+                  .querySelector('.categories-header-bar')
+                  ?.scrollIntoView({ behavior: 'smooth' });
+              }, 80);
+            } else {
+              document
+                .querySelector('.categories-header-bar')
+                ?.scrollIntoView({ behavior: 'smooth' });
+            }
+          }}
+        >
+          <svg
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <rect x="3" y="3" width="7" height="7" rx="1.5" />
+            <rect x="14" y="3" width="7" height="7" rx="1.5" />
+            <rect x="3" y="14" width="7" height="7" rx="1.5" />
+            <rect x="14" y="14" width="7" height="7" rx="1.5" />
+          </svg>
+          <span>Categorias</span>
+        </button>
+
+        <button
+          type="button"
+          className={`mobile-app-nav-item ${view === 'cart' ? 'active' : ''}`}
+          onClick={() => {
+            setView('cart');
+            setMobileFiltersOpen(false);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          }}
+        >
+          <span className="mobile-app-icon-wrap">
+            <CartIcon size={20} />
+            {cartIds.length > 0 && (
+              <span className="mobile-app-badge">{cartIds.length}</span>
+            )}
+          </span>
+          <span>Carrinho</span>
+        </button>
+
+        <button
+          type="button"
+          className={`mobile-app-nav-item ${view === 'saved' ? 'active' : ''}`}
+          onClick={() => {
+            setView('saved');
+            setMobileFiltersOpen(false);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          }}
+        >
+          <span className="mobile-app-icon-wrap">
+            <BookmarkIcon size={20} filled={view === 'saved'} />
+            {savedIds.length > 0 && (
+              <span className="mobile-app-badge">{savedIds.length}</span>
+            )}
+          </span>
+          <span>Salvos</span>
+        </button>
+      </nav>
     </div>
   );
 }

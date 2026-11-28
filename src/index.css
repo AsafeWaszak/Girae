@@ -2729,3 +2729,220 @@ a {
       padding-right: 14px;
     }
   }
+  /* ================= MODO APP ANDROID (APENAS CELULAR) ================= */
+.mobile-filter-trigger,
+.mobile-app-nav {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  html,
+  body,
+  #root {
+    max-width: 100vw;
+    overflow-x: hidden;
+  }
+
+  /* 1. Cabeçalho sem estourar e busca cabendo inteira */
+  .site-header,
+  .header-inner {
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+  }
+
+  .header-actions {
+    flex: 1 1 0 !important;
+    min-width: 0 !important;
+    max-width: 62vw !important;
+    align-items: flex-end !important;
+    justify-content: center !important;
+  }
+
+  .header-actions > span {
+    white-space: normal !important;
+    font-size: 10.5px !important;
+    font-weight: 700 !important;
+    color: #111827 !important;
+    line-height: 1.2 !important;
+    text-align: right !important;
+    display: block !important;
+    max-width: 100% !important;
+  }
+
+  /* Esconde Carrinho/Salvos no topo no celular porque agora ficam na barra fixa de App */
+  .header-actions > div {
+    display: none !important;
+  }
+
+  .site-header form {
+    max-width: 100% !important;
+    min-width: 0 !important;
+  }
+
+  /* 2. Grade de 2 produtos lado a lado + 2 categorias por linha */
+  .product-grid-4 {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 10px !important;
+  }
+
+  .product-grid-4 > * {
+    min-width: 0 !important;
+    padding: 10px !important;
+    border-radius: 16px !important;
+    overflow: hidden !important;
+  }
+
+  .product-grid-4 img {
+    max-height: 112px !important;
+    object-fit: contain !important;
+  }
+
+  .product-grid-4 h3,
+  .product-grid-4 h4 {
+    font-size: 12.5px !important;
+    line-height: 1.25 !important;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .hybrid-price-val {
+    font-size: 16.5px !important;
+  }
+
+  .card-buy-btn {
+    font-size: 11px !important;
+    padding: 8px 6px !important;
+  }
+
+  .categories-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 10px !important;
+  }
+
+  .category-card {
+    padding: 12px !important;
+    min-width: 0 !important;
+  }
+
+  /* 3. Suspensório retrátil dos filtros nas categorias/busca */
+  .catalog-layout {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 12px !important;
+  }
+
+  .sidebar-panel {
+    width: 100% !important;
+    max-width: 100% !important;
+    position: static !important;
+    padding: 0 !important;
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+  }
+
+  .sidebar-panel.mobile-open {
+    background: #ffffff !important;
+    border: 2px solid #111827 !important;
+    border-radius: 16px !important;
+    padding: 12px !important;
+  }
+
+  .mobile-filter-trigger {
+    display: flex !important;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    padding: 11px 14px;
+    background: #ffffff;
+    border: 2px solid #111827;
+    border-radius: 12px;
+    font-size: 13.5px;
+    font-weight: 700;
+    color: #111827;
+    cursor: pointer;
+  }
+
+  .sidebar-panel.mobile-open .mobile-filter-trigger {
+    margin-bottom: 12px;
+    background: #ffd600;
+  }
+
+  .sidebar-panel:not(.mobile-open) > *:not(.mobile-filter-trigger) {
+    display: none !important;
+  }
+
+  /* 4. Rodapé cabendo inteiro acima da barra de App */
+  .site-footer {
+    padding-bottom: 84px !important;
+  }
+
+  .site-footer a {
+    white-space: normal !important;
+  }
+
+  /* 5. Barra fixa inferior estilo App Android */
+  .mobile-app-nav {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 62px;
+    background: #ffffff;
+    border-top: 1.5px solid #e5e7eb;
+    box-shadow: 0 -4px 14px rgba(0, 0, 0, 0.08);
+    z-index: 90;
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+
+  .mobile-app-nav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    background: transparent;
+    border: none;
+    color: #4b5563;
+    font-size: 11px;
+    font-weight: 600;
+    cursor: pointer;
+    padding: 4px 0;
+  }
+
+  .mobile-app-nav-item.active {
+    color: #111827;
+    font-weight: 800;
+  }
+
+  .mobile-app-icon-wrap {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .mobile-app-badge {
+    position: absolute;
+    top: -6px;
+    right: -10px;
+    min-width: 16px;
+    height: 16px;
+    padding: 0 4px;
+    border-radius: 999px;
+    background: #ffd600;
+    color: #111827;
+    border: 1.5px solid #111827;
+    font-size: 10px;
+    font-weight: 800;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+  }
+}
